@@ -8,7 +8,7 @@ In the apps.py present in your folder rename the field "name" and all reference 
 
 Adapt in the generic_organization_conf.env the environment variable with your environment reference.
 
-You can use docker-compose-db-redis.yaml in order to start db and redis services needed to run your organization.
+You can use docker-compose-db-redis.yaml in order to start db and redis services needed to run your organization. You have to manually create the database "generic_organization_db" on the postgres instance started.
 
 In the __init__py present in the root of your folder, set the default_app_config with the correct path to the class
 present in the app.py file in your folder.
@@ -51,3 +51,5 @@ After configuration and startup, you can generate verify request in the followin
 In order to generate a connection request, you can use the following service:
 * {running instance}/api/v1/organization/connection/start/<str:organization_business_code>
     * you'll obtain the invitation link
+
+Once all the configurations have been made, you can use docker-compose-dev.yaml in order to run your generic organization.
