@@ -16,9 +16,10 @@ present in the app.py file in your folder.
 Implement the methods in your handler in order to receive callback from generic organization and develop your logic starting from 
 the handler class "organization_handler.py" present in your folder
 
-In case you need to add some textual descriptions, you can them in the localized files present in the resource/i18n folder.
-If can add files for other language. 
-The mapping with the key of the translation must be inserted in the organization_description_message_code.py class 
+In case you need to add some textual descriptions, you can put them in the localized files present in the resource/i18n folder.
+If you need, you can add files for other language. The lang file must be start with [lang], in case of english it will be start with [en], [it] for italian ans so on.
+
+The mapping with the key of the translation must be inserted in the organization_description_message_code.py class present in the util package in your folder.
 
 NOTE: The handler invocation is already made within properly redis worker so it not block the caller.
 
