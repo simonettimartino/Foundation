@@ -8,7 +8,6 @@ celery==4.3.0
 marshmallow==2.20.0
 zeep==3.4.0
 redis==3.3.11
-Pillow==6.0.0
 mrz==0.5.8
 django-pgcrypto==2.0.0
 antidote==0.7.3

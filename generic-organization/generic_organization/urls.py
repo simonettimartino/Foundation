@@ -46,7 +46,8 @@ urlpatterns = [
 ]
 
 for root, dirs, files in os.walk(BASE_CODE_FOLDER, topdown=False, followlinks=False):
-    if os.path.exists(os.path.join(root, "urls.py")) and os.path.basename(root) not in TEMPLATE_FOLDER_LIST:
+    if os.path.exists(os.path.join(root, "org_implementation.org")) and \
+            os.path.exists(os.path.join(root, "urls.py")) and os.path.basename(root) not in TEMPLATE_FOLDER_LIST:
         urlpatterns.append(
             re_path('api/(?P<version>(v1|v2))/', include(os.path.basename(root) + ".urls"))
         )
