@@ -6,6 +6,10 @@ from generic_organization_service.handlers.organization_handler_manager import O
 from generic_organization.settings import LOGGING
 
 
+from yourcompany.organization_handler import OrganizationHandler
+
+
+
 class MyAppConfig(AppConfig):
     name = "yourcompany"
 

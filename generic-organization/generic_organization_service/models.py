@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils import timezone
 import pgcrypto
-
+from jsonfield import JSONField
 class Properties(models.Model):
     # name
     name = models.CharField(max_length=255, primary_key=True)
@@ -36,7 +36,7 @@ class Agent(models.Model):
     # organization
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
     # authentication
-    auth = models.JSONField(null=True)
+    auth = JSONField(null=True)
 
     def __str__(self):
         return "{} - {} - {} - {} - {}".format(self.id, self.name, self.type, self.status, self.ip_address)
@@ -90,7 +90,7 @@ class Credential(models.Model):
     # version
     version = models.CharField(max_length=255, null=False)
     # value
-    attributes = models.JSONField(null=False)
+    attributes = JSONField(null=False)
 
     def __str__(self):
         return "{} - {} - {} - {}".format(self.name, self.business_code, self.version, self.value)
@@ -100,7 +100,7 @@ class IssueRequest(Request):
 
     credential = models.ForeignKey(Credential, on_delete=models.CASCADE)
 
-    values_for_credential = models.JSONField(null=True)
+    values_for_credential = JSONField(null=True)
 
     discard_description = models.TextField(null=True)
 
@@ -128,7 +128,7 @@ class IssuedCredential(models.Model):
 class UserData(models.Model):
     user_connection = models.ForeignKey(UserConnection, on_delete=models.CASCADE)
 
-    data = models.JSONField(null=False)
+    data = JSONField(null=False)
 
     source = models.CharField(max_length=255, null=False)
 
@@ -291,7 +291,7 @@ class VerifyConfirm(models.Model):
 
     proof_evidence = pgcrypto.EncryptedTextField(null=False)
 
-    proof_request = models.JSONField(null=True)
+    proof_request = JSONField(null=True)
 
     user_connection = models.ForeignKey(UserConnection, on_delete=models.DO_NOTHING, null=True)
 
