@@ -7,17 +7,17 @@ from generic_organization.settings import LOGGING
 
 
 class MyAppConfig(AppConfig):
-    name = "#your_org_name"
+    name = "yourcompany"
 
     def ready(self):
         # FIXME change the import with your organization folder
         from organization_template.organization_handler import OrganizationHandler
         handler_manager = world.get(OrganizationHandlerManager)
-        handler_manager.add_organization_handler("#your_org_name", OrganizationHandler())
+        handler_manager.add_organization_handler("yourcompany", OrganizationHandler())
 
         logger_conf = {
             'handlers': ['console'],
             'level': os.getenv('SEVERITY_LOG_LEVEL', 'INFO'),
             'propagate': False,
         }
-        LOGGING['loggers']['#your_org_name'] = logger_conf
+        LOGGING['loggers']['yourcompany'] = logger_conf

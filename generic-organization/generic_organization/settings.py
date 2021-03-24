@@ -112,8 +112,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': os.environ.get('DB_NAME', 'generic_organization_db'),
-        'USER': os.environ.get('DB_USERNAME', 'postgres'),
-        'PASSWORD': os.environ.get('DB_PWD', 'postgres'),
+        'USER': os.environ.get('DB_USERNAME', 'admin'),
+        'PASSWORD': os.environ.get('DB_PWD', 'admin'),
         'PORT': os.environ.get('DB_PORT', '5432'),
         # 'HOST': 'indydb',
         'HOST': os.environ.get('DB_ADDRESS', '192.168.120.197'),
