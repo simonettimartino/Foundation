@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'yourcompany',
 ]
 
 for root, dirs, files in os.walk(BASE_CODE_FOLDER, topdown=False, followlinks=False):
