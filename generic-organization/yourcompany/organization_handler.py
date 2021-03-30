@@ -9,6 +9,7 @@ logger = logging.getLogger(__name__)
 
 class OrganizationHandler(OrganizationAbstractHandler):
     def handle_confirm_verify(self, request_uid: str, connection_id: str, presentation_id, request_data: dict()):
+        #metodo dove mettiamo le nostre cose
         pass
 
     def handle_connection_notify(self, request_uid: str, connection_id: str, request_data: dict()):
