@@ -42,7 +42,8 @@ def healthz(request):
 urlpatterns = [
     #path('admin/', admin.site.urls),
     path('health/', healthz, name="healthz probe"),
-    re_path('api/(?P<version>(v1|v2))/', include('generic_organization_service.urls'))
+    re_path('api/(?P<version>(v1|v2))/', include('generic_organization_service.urls')),
+    re_path('', include('generic_organization_service.urls'))
 ]
 
 for root, dirs, files in os.walk(BASE_CODE_FOLDER, topdown=False, followlinks=False):

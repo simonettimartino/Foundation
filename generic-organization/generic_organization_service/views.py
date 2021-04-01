@@ -8,6 +8,16 @@ from generic_organization_service.services.verify_service import VerifyService
 from generic_organization_service.services.connection_service import ConnectionService
 from generic_organization_service.services.issue_service import IssueService
 
+
+
+from django.http import HttpResponse
+from django.shortcuts import render, get_object_or_404
+
+from django.db import connection
+from django.http import HttpResponseRedirect
+
+
+
 logger = logging.getLogger(__name__)
 
 
@@ -107,3 +117,20 @@ def discard_proof(request, verify_service: VerifyService, *args, **kwargs):
 def values_for_credential(request, issue_service: IssueService, *args, **kwargs):
     logger.info("discard_credential")
     return issue_service.values_for_credential(request.data)
+
+
+
+def home(request):
+    #return HttpResponse('about')
+    return render(request,'main.html')
+    
+def error(request):
+    #return HttpResponse('about')
+    return render(request,'error.html')
+
+def generic_error(request):
+    #return HttpResponse('about')
+    return render(request,'generic_error.html')
+    
+    
+

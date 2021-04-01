@@ -3,6 +3,9 @@ from rest_framework.urlpatterns import format_suffix_patterns
 from .views import start_verify, start_verify_with_widget, confirm_verify, connection_notify, confirm_issue, \
     discard_credential, discard_proof, values_for_credential, start_connection
 
+from . import views #il punto indica la stessa directory
+from django.conf.urls import url,include
+
 
 urlpatterns = [
     path('organization/verification/start/<str:proof_business_code>/<str:service_name>', start_verify,
@@ -19,6 +22,9 @@ urlpatterns = [
     path('owners/credential/discard', discard_credential, name="discard_credential"),
     path('owners/proof/discard', discard_proof, name="discard_proof"),
     path('owners/credential/values_for_credential', values_for_credential, name="values_for_credential"),
+    url(r'^home/$', views.home, name='home'), #richiama main.html
+    url(r'^error/$', views.error, name='error'),
+    url(r'^generic_error/$', views.generic_error, name='generic_error'),
 
 ]
 

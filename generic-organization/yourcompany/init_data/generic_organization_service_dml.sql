@@ -1,9 +1,9 @@
 -- <<<<<   PAY ATTENTION   >>>>>
 -- THIS IS ONLY AN EXAMPLE, PUT YOUR CONFIG PARAMETER AND STORE IN THE DB FOR YOUR ORGANIZATION
 
---INSERT INTO public.generic_organization_service_organization (id, name, business_code, ip_address) VALUES (1, 'Orgname','ORG_BC_001', 'http://xxxxx.yourendpoint.example');
+--INSERT INTO public.generic_organization_service_organization (id, name, business_code, ip_address) VALUES (1, 'yourcompany','ORG_BC_001', '192.168.1.67/main.html');
 
---INSERT INTO public.generic_organization_service_agent (id, name, type, status, ip_address, auth, organization_id ) VALUES (1, 'DizmeAgent','AGENT', 'ACTIVE','https://demo-agent-cl.dizme.io','{"agent_id": "Your Company", "token": "JESjtNprnHMKrbtKkCakrrfodKTGZQrn"}',1);
+--INSERT INTO public.generic_organization_service_agent (id, name, type, status, ip_address, auth, organization_id ) VALUES (1, 'DizmeAgent','AGENT', 'ACTIVE','192.168.1.67','{"agent_id": "Your Company", "token": "JESjtNprnHMKrbtKkCakrrfodKTGZQrn"}',1);
 
 --INSERT INTO public.generic_organization_service_credential (id, name, business_code, version, attributes) VALUES (1, 'Email', 'Nkm6Gvyb5wCru52raJ8DkV:3:CL:80915:Email', '1.0', '["email", "timestamp"]');
 
