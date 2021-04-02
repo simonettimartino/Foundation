@@ -1,5 +1,8 @@
 from generic_organization_service.handlers.organization_abstract_handler import OrganizationAbstractHandler
-
+from antidote import world
+from generic_organization_service.services.notification_service import NotificationService
+from generic_organization_service.interfaces.responses.generic_response import VerifyResult
+from generic_organization_service.services.verify_service import VerifyService
 import logging
 
 logger = logging.getLogger(__name__)
@@ -9,7 +12,14 @@ logger = logging.getLogger(__name__)
 
 class OrganizationHandler(OrganizationAbstractHandler):
     def handle_confirm_verify(self, request_uid: str, connection_id: str, presentation_id, request_data: dict()):
-        #metodo dove mettiamo le nostre cose
+        logger.info('Sono qua ------------------------------ ')
+        ##chiamare metodo response (notificatio_service)
+        #notificationService = NotificationService()
+        #notificationService.send_verify_response(self, connection_id, presentation_id,VerifyResult.KO)
+        oggService: VerifyService = world.get(VerifyService)
+        if(oggService):
+            oggService.handle_confirm_verify(request_uid, connection_id, presentation_id, request_data)
+
         pass
 
     def handle_connection_notify(self, request_uid: str, connection_id: str, request_data: dict()):
@@ -28,3 +38,4 @@ class OrganizationHandler(OrganizationAbstractHandler):
     
     def handle_async_event(self, event_type: str, request_data: dict):
         pass
+

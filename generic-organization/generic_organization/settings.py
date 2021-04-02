@@ -114,7 +114,7 @@ DATABASES = {
         'NAME': os.environ.get('DB_NAME', 'generic_organization_db'),
         'USER': os.environ.get('DB_USERNAME', 'postgres'),
         'PASSWORD': os.environ.get('DB_PWD', 'postgres'),
-        'PORT': os.environ.get('DB_PORT', '5433'),
+        'PORT': os.environ.get('DB_PORT', '5432'),
         # 'HOST': 'indydb',
         'HOST': os.environ.get('DB_ADDRESS', '192.168.120.197'),
     }

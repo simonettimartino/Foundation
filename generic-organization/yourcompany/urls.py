@@ -7,6 +7,7 @@ from django.conf.urls import url,include
 urlpatterns = [
     #path('service_path', service_view, name="service_name"),
     url(r'^main/$', views.main, name='main'),
+   
     # path('',views.homepage, name='homepage'),
 
 ]

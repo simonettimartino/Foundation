@@ -8,6 +8,10 @@ from django.http import HttpResponseRedirect
 
 def main(request):
     #return HttpResponse('about')
-    print("pony")
     return render(request,'main.html')
+def main(request):
+    #return HttpResponse('about')
+    return render(request,'main.html')
+    
+
     
