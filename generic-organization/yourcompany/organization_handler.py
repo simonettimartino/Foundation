@@ -20,9 +20,13 @@ class OrganizationHandler(OrganizationAbstractHandler):
         #notificationService.send_verify_response(self, connection_id, presentation_id,VerifyResult.KO)
         #oggService: VerifyService = world.get(VerifyService)
         #if(oggService):
-        #notification_service = NotificationService()
+        #verify_request = request_entity.get_verify_request_by_request_uid(request_uid)
+        #proof_service_action = verify_request.proof_service_action
+        #if(proof_service_action.action.name == ActionName):
+
+        notification_service = NotificationService()
         user_connection = user_entity.get_user_connection(connection_id= connection_id)
-        notification_service.send_verify_response(self, user_connection, presentation_id, "errore descrizione", VerifyResult.KO)
+        notification_service.send_verify_response(user_connection, presentation_id, "errore descrizione", VerifyResult.KO)
 
         pass
 

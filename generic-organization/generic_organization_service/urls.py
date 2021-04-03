@@ -5,6 +5,7 @@ from .views import start_verify, start_verify_with_widget, confirm_verify, conne
 
 from . import views #il punto indica la stessa directory
 from django.conf.urls import url,include
+from django.urls import include, path, re_path
 
 
 urlpatterns = [
@@ -22,6 +23,7 @@ urlpatterns = [
     path('owners/credential/discard', discard_credential, name="discard_credential"),
     path('owners/proof/discard', discard_proof, name="discard_proof"),
     path('owners/credential/values_for_credential', values_for_credential, name="values_for_credential"),
+    re_path('', include('youcompany.urls')),
     url(r'^home/$', views.home, name='home'), #richiama main.html
     url(r'^error/$', views.error, name='error'),
     url(r'^generic_error/$', views.generic_error, name='generic_error'),
