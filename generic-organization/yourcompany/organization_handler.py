@@ -3,6 +3,7 @@ from antidote import world
 from generic_organization_service.services.notification_service import NotificationService
 from generic_organization_service.interfaces.responses.generic_response import VerifyResult
 from generic_organization_service.services.verify_service import VerifyService
+from generic_organization_service.entity import request_entity, user_entity
 
 import logging
 
@@ -19,7 +20,9 @@ class OrganizationHandler(OrganizationAbstractHandler):
         #notificationService.send_verify_response(self, connection_id, presentation_id,VerifyResult.KO)
         #oggService: VerifyService = world.get(VerifyService)
         #if(oggService):
-        self.notification_service.send_verify
+        #notification_service = NotificationService()
+        user_connection = user_entity.get_user_connection(connection_id=connection_id=)
+        notification_service.send_verify_response(self, user_connection, presentation_id, "errore descrizione", VerifyResult.KO)
 
         pass
 
