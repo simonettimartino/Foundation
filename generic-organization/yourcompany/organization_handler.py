@@ -14,14 +14,14 @@ logger = logging.getLogger(__name__)
 
 class OrganizationHandler(OrganizationAbstractHandler):
     def handle_confirm_verify(self, request_uid: str, connection_id: str, presentation_id, request_data: dict()):
-        logger.info('Sono qua ------------------------------ ')
+        logger.info('------------------------------ Connessione effettuata ------------------------------ ')
         ##chiamare metodo response (notificatio_service)
         #notificationService = NotificationService()
         #notificationService.send_verify_response(self, connection_id, presentation_id,VerifyResult.KO)
         #oggService: VerifyService = world.get(VerifyService)
         #if(oggService):
         #notification_service = NotificationService()
-        user_connection = user_entity.get_user_connection(connection_id=connection_id=)
+        user_connection = user_entity.get_user_connection(connection_id= connection_id)
         notification_service.send_verify_response(self, user_connection, presentation_id, "errore descrizione", VerifyResult.KO)
 
         pass

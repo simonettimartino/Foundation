@@ -17,4 +17,16 @@
 
 --INSERT INTO public.generic_organization_service_proofserviceactioncredential (id, credential_id, proof_service_action_id) VALUES (1, 1,1);
 
+--usate
+--INSERT INTO public.generic_organization_service_organization (id, name, business_code, ip_address) VALUES (1, 'yourcompany','ORG_BC_001', '192.168.1.67/main.html');
 
+--INSERT INTO public.generic_organization_service_agent (id, name, type, status, ip_address, auth, organization_id ) VALUES (1, 'DizmeAgent','AGENT', 'ACTIVE','https://demo-agent-cl.dizme.io','{"agent_id": "Your Company", "token": "JESjtNprnHMKrbtKkCakrrfodKTGZQrn"}',1);
+
+
+--INSERT INTO public.generic_organization_service_action (id,name,description) VALUES (1, 'NO_ACTION', 'NO_ACTION');
+
+--INSERT INTO public.generic_organization_service_service (id,name,description) VALUES (1, 'TEST','Verify for test');
+
+--INSERT INTO public.generic_organization_service_proofrequest (id,business_code,version,description, organization_id) VALUES (1, 'BC_prova', '1.0','Proof per TEST', 1);
+
+--INSERT INTO public.generic_organization_service_proofserviceaction (id,action_id, proof_id, service_id) VALUES (1, 1,1,1);
