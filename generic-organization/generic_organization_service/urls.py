@@ -5,6 +5,7 @@ from .views import start_verify, start_verify_with_widget, confirm_verify, conne
 
 from . import views #il punto indica la stessa directory
 from django.conf.urls import url,include
+from django.urls import include, path, re_path
 
 
 urlpatterns = [
