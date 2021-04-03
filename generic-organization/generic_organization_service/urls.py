@@ -23,10 +23,10 @@ urlpatterns = [
     path('owners/credential/discard', discard_credential, name="discard_credential"),
     path('owners/proof/discard', discard_proof, name="discard_proof"),
     path('owners/credential/values_for_credential', values_for_credential, name="values_for_credential"),
-    #re_path('', include('yourcompany.urls')),
-    #url(r'^home/$', views.home, name='home'), #richiama main.html
-    #url(r'^error/$', views.error, name='error'),
-    #url(r'^generic_error/$', views.generic_error, name='generic_error'),
+    url(r'', views.home, name='home'),
+    url(r'^main/$', views.main, name='main'), #richiama main.html
+    url(r'^error/$', views.error, name='error'),
+    url(r'^generic_error/$', views.generic_error, name='generic_error'),
 
 ]
 
