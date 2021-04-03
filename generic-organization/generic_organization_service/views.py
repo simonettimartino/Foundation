@@ -120,9 +120,13 @@ def values_for_credential(request, issue_service: IssueService, *args, **kwargs)
 
 
 
-def home(request):
+def main(request):
     #return HttpResponse('about')
     return render(request,'main.html')
+
+def home(request):
+    #return HttpResponse('about')
+    return render(request,'home.html')
     
 def error(request):
     #return HttpResponse('about')
