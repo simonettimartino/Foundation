@@ -3,6 +3,7 @@ from antidote import world
 from generic_organization_service.services.notification_service import NotificationService
 from generic_organization_service.interfaces.responses.generic_response import VerifyResult
 from generic_organization_service.services.verify_service import VerifyService
+
 import logging
 
 logger = logging.getLogger(__name__)
@@ -16,9 +17,9 @@ class OrganizationHandler(OrganizationAbstractHandler):
         ##chiamare metodo response (notificatio_service)
         #notificationService = NotificationService()
         #notificationService.send_verify_response(self, connection_id, presentation_id,VerifyResult.KO)
-        oggService: VerifyService = world.get(VerifyService)
-        if(oggService):
-            oggService.handle_confirm_verify(request_uid, connection_id, presentation_id, request_data)
+        #oggService: VerifyService = world.get(VerifyService)
+        #if(oggService):
+        self.notification_service.send_verify
 
         pass
 
