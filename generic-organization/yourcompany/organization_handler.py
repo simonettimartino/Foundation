@@ -5,20 +5,25 @@ from generic_organization_service.interfaces.responses.generic_response import V
 from generic_organization_service.services.verify_service import VerifyService
 from generic_organization_service.entity import request_entity, user_entity
 from yourcompany.services.supporto_notifiche import SupportoNotifiche
-
+from generic_organization_service.utils.description_handler import DescriptionHandler, DescriptionMessagesCodes
+from generic_organization_service.handlers.organization_handler_manager import OrganizationHandlerManager
+from antidote import inject
 import logging
 
 logger = logging.getLogger(__name__)
 
 # FIXME implement all methods
 
+
 class OrganizationHandler(OrganizationAbstractHandler):
 
-   
+
     def handle_confirm_verify(self, request_uid: str, connection_id: str, presentation_id, request_data: dict()):
         logger.info('------------------------------ Connessione effettuata ------------------------------ ')
-       
+
+
         oggService: SupportoNotifiche = world.get(SupportoNotifiche)
+    
         if(oggService):
            oggService.handle_confirm_verify(request_uid, connection_id, presentation_id, request_data)
         
