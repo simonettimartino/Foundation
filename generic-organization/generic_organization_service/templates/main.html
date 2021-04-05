@@ -319,7 +319,7 @@
         <!-- Login Form -->
         <div id="div_widget">
         <form>
-            <script async
+            <script async defer
                     src="//{{ widget_url }}/widget_viewer/dizme_widget.js"
                     data-dizme-api="000-111-222"
                     data-onauth="onDizmeAuth(res)"
@@ -335,19 +335,28 @@
                     data-size-widget="normal"
                     data-request-type="verify"></script>
             <script type="text/javascript">
+        
+
+
                 var formFooterStatus = true;
                 function onDizmeAuth(res) {
                     console.log(res);
-                    //alert('Result of login ' + res.proof_status);
+                    alert('Result of login ' + res.proof_status);
                     if (res.proof_status === "SUCCESS") {
+                        console.log("1")
+                        window.location.href = "www.google.com";
                     } else if (res.proof_status === "FAILURE") {
+                        console.log("2")
                     } else if (res.proof_status === "ABORTED") {
+                        console.log("3")
                         setTimeout(function(){
                             window.history.back();
                         },1500);
                     }
                 }
             </script>
+             
+        
         </form>
         </div>
         <div id="formFooter" style="margin-top:10px; text-align:left!important;font-size:11px!important">
