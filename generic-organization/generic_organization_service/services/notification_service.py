@@ -9,6 +9,7 @@ from generic_organization_service.entity import agent_entity
 from generic_organization_service.models import UserConnection
 from antidote import register
 
+
 logger = logging.getLogger(__name__)
 
 
@@ -47,4 +48,6 @@ class NotificationService:
         verify_response.set_descriptions(description_list)
         verify_response.set_verify_result(verify_result.value)
         generic_response = dizme_agent_client.send_verify_response(verify_response)
+        print("verify response:", verify_response)
+        print("generic response:", generic_response)
         return generic_response

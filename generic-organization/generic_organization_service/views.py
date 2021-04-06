@@ -128,13 +128,13 @@ def home(request):
     #return HttpResponse('about')
     return render(request,'home.html')
     
-def error(request):
+#def error(request):
     #return HttpResponse('about')
-    return render(request,'error.html')
+    #return render(request,'error.html')
 
-def generic_error(request):
+#def generic_error(request):
     #return HttpResponse('about')
-    return render(request,'generic_error.html')
+    #return render(request,'generic_error.html')
     
     
 
