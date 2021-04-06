@@ -309,7 +309,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 
 <!------ Include the above in your HEAD tag ---------->
-
+<h1>aaaaaaaaaa</h1>
 <div id="container" class="wrapper fadeInDown">
     <div id="formContent" style="float:left">
       <div class="row" style="margin:0px">
@@ -333,15 +333,22 @@
                     data-request-id="{{ request_uid }}"
                     data-lang="it"
                     data-size-widget="normal"
-                    data-request-type="verify"></script>
+                    data-request-type="verify">
+                console.log("quiiii")
+                </script>
             <script type="text/javascript">
                 var formFooterStatus = true;
+                
                 function onDizmeAuth(res) {
                     console.log(res);
-                    //alert('Result of login ' + res.proof_status);
+                    alert('Result of login ' + res.proof_status);
                     if (res.proof_status === "SUCCESS") {
+                        console.log("1")
+                        window.location="http://192.168.1.67/loginok"
                     } else if (res.proof_status === "FAILURE") {
+                        console.log("2")
                     } else if (res.proof_status === "ABORTED") {
+                        console.log("3")
                         setTimeout(function(){
                             window.history.back();
                         },1500);

@@ -27,6 +27,7 @@ urlpatterns = [
     url(r'^main/$', views.main, name='main'), #richiama main.html
     url(r'^error/$', views.error, name='error'),
     url(r'^generic_error/$', views.generic_error, name='generic_error'),
+    url(r'^loginok/$', views.main, name='main')
 
 ]
 
