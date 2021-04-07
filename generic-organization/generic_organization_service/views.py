@@ -17,6 +17,10 @@ from django.db import connection
 from django.http import HttpResponseRedirect
 
 
+from algosdk import mnemonic
+from algosdk.v2client import algod
+from algosdk.future.transaction import PaymentTxn
+from algosdk import account, encoding
 
 logger = logging.getLogger(__name__)
 
@@ -124,17 +128,52 @@ def main(request):
     #return HttpResponse('about')
     return render(request,'main.html')
 
+
+def generate_algorand_keypair():
+    private_key, address = account.generate_account()
+    print("My address: {}".format(address))
+    straddress = str(address)
+    print("My passphrase: {}".format(mnemonic.from_private_key(private_key)))
+    strpassphrase = str(mnemonic.from_private_key(private_key))
+    addrpiupass = straddress + " - " + strpassphrase
+    return addrpiupass
+
+
+def myAccInfo():
+    #192.168.1.67
+    algod_address = "http://192.168.1.67:4001"
+    algod_token = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    algod_client = algod.AlgodClient(algod_token, algod_address)
+
+    passphrase = "sample oven shop vacuum ribbon multiply skull grain buddy eagle razor trash average fury alley pioneer garbage panda lecture road tattoo inflict core above joke"
+
+    private_key = mnemonic.to_private_key(passphrase)
+    my_address = mnemonic.to_public_key(passphrase)
+    print("My address: {}".format(my_address))
+    strmy_address = str(my_address)
+    account_info = algod_client.account_info(my_address)
+    print("Account balance: {} microAlgos".format(account_info.get('amount')))
+    straccount_info = str(account_info.get('amount'))
+    myaddrpiuacinfo = strmy_address + " - " + straccount_info
+    return myaddrpiuacinfo
+
+
 def home(request):
-    #return HttpResponse('about')
-    return render(request,'home.html')
+    addrpiupass = generate_algorand_keypair()
+    myaddrpiuacinfo = myAccInfo()
+    splitaddrpiupass = addrpiupass.split(" - ")
+    splitmyaddrpiuacinfo = myaddrpiuacinfo.split(" - ")
+    return render(request,'home.html',{"address":splitaddrpiupass[0],"passphrase":splitaddrpiupass[1],"my_address":splitmyaddrpiuacinfo[0],"microAlgos":splitmyaddrpiuacinfo[1]})
     
-#def error(request):
-    #return HttpResponse('about')
-    #return render(request,'error.html')
+def error(request):
+    return HttpResponse('about')
+    return render(request,'error.html')
 
-#def generic_error(request):
-    #return HttpResponse('about')
-    #return render(request,'generic_error.html')
-    
-    
+def generic_error(request):
+    return HttpResponse('about')
+    return render(request,'generic_error.html')
 
+
+
+
+    

@@ -14,3 +14,5 @@ antidote==0.7.3
 --index-url=http://pypi.etuitus.it --trusted-host pypi.etuitus.it
 dizme-agent-pyclient==0.0.2
 infocert-pyclients==0.0.1
+## algo
+py-algorand-sdk==1.4.1

@@ -319,7 +319,7 @@
         <!-- Login Form -->
         <div id="div_widget">
         <form>
-            <script async defer
+            <script async 
                     src="//{{ widget_url }}/widget_viewer/dizme_widget.js"
                     data-dizme-api="000-111-222"
                     data-onauth="onDizmeAuth(res)"
@@ -337,9 +337,9 @@
                 console.log("quiiii")
                 </script>
             <script type="text/javascript">
-        
-
-
+                console.log("{{ request_uid }}")
+                alert("{{ request_uid }}")
+                alert("{{ proof_business_code }}")
                 var formFooterStatus = true;
                 
                 function onDizmeAuth(res) {
