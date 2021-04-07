@@ -338,19 +338,17 @@
                 </script>
             <script type="text/javascript">
                 console.log("{{ request_uid }}")
-                alert("{{ request_uid }}")
-                alert("{{ proof_business_code }}")
                 var formFooterStatus = true;
                 
                 function onDizmeAuth(res) {
                     console.log(res);
-                    alert('Result of login ' + res.proof_status);
-                    if (res.proof_status === "SUCCESS") {
+                    alert('Result of login ' + res.transaction_status);
+                    if (res.transaction_status === "SUCCESS") {
                         console.log("1")
                         window.location="http://192.168.1.67/loginok"
-                    } else if (res.proof_status === "FAILURE") {
+                    } else if (res.transaction_status === "FAILURE") {
                         console.log("2")
-                    } else if (res.proof_status === "ABORTED") {
+                    } else if (res.transaction_status === "ABORTED") {
                         console.log("3")
                         setTimeout(function(){
                             window.history.back();
