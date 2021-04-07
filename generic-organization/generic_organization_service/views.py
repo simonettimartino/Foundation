@@ -136,8 +136,9 @@ def generate_algorand_keypair():
 
 
 def pippo():
-    #192.168.1.67
-    algod_address = "http://192.168.1.67:4001"
+
+    
+    algod_address = "http://192.168.1.67:4001" #inizialmente era localhost
     algod_token = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
     algod_client = algod.AlgodClient(algod_token, algod_address)
 
