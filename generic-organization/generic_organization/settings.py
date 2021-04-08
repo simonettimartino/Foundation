@@ -81,7 +81,7 @@ ROOT_URLCONF = 'generic_organization.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ['generic_organization_service/templates'],
+        'DIRS': ['generic_organization_service/templates','yourcompany/templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

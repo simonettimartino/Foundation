@@ -26,6 +26,7 @@ class SupportoNotifiche:
         if (notification_service):
             print("------------ USER CONNECTION: ", user_connection)
             print("------------ CONNECTION ID: ",presentation_id)
+            #print("==================== request data: ",request_data)
             self.notification_service.send_verify_response(user_connection, presentation_id, descriptions, VerifyResult.OK)
 
 

@@ -9,6 +9,13 @@ from generic_organization_service.utils.description_handler import DescriptionHa
 from generic_organization_service.handlers.organization_handler_manager import OrganizationHandlerManager
 from antidote import inject
 import logging
+import pprint
+import json
+
+
+import psycopg2
+from config import config
+
 
 logger = logging.getLogger(__name__)
 
@@ -24,10 +31,43 @@ class OrganizationHandler(OrganizationAbstractHandler):
 
         oggService: SupportoNotifiche = world.get(SupportoNotifiche)
     
-        if(oggService):
-           oggService.handle_confirm_verify(request_uid, connection_id, presentation_id, request_data)
-        
+        if(oggService): #se tutto va bene
+            oggService.handle_confirm_verify(request_uid, connection_id, presentation_id, request_data)
+            #inserisco la mail nel database
+            #dati = json.load(request_data)
+            print("=======================",request_data['revealed_attributes']['email'])
+            mail = request_data['revealed_attributes']['email']
+            #inserimento mail nella tabella
+            
+            sql = "INSERT INTO account(mail) VALUES(%s) RETURNING mail_gen;"
+            conn = None
+            vendor_id = None
+            try:
+                # read database configuration
+                params = config()
+                # connect to the PostgreSQL database
+                conn = psycopg2.connect(**params)
+                # create a new cursor
+                cur = conn.cursor()
+                # execute the INSERT statement
+                cur.execute(sql, (mail,))
+                # get the generated id back
+                mail_gen = cur.fetchone()[0]
+                # commit the changes to the database
+                conn.commit()
+                # close communication with the database
+                cur.close()
+            except (Exception, psycopg2.DatabaseError) as error:
+                print(error)
+            finally:
+                if conn is not None:
+                    conn.close()
 
+            return mail_gen
+
+
+
+           
     def handle_connection_notify(self, request_uid: str, connection_id: str, request_data: dict()):
         pass
 

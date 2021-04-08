@@ -129,6 +129,26 @@ def main(request):
     return render(request,'main.html')
 
 
+def error(request):
+    return HttpResponse('about')
+    return render(request,'error.html')
+
+def generic_error(request):
+    return HttpResponse('about')
+    return render(request,'generic_error.html')
+
+
+
+
+
+def home(request):
+    #addrpiupass = generate_algorand_keypair()
+    #myaddrpiuacinfo = myAccInfo()
+    #splitaddrpiupass = addrpiupass.split(" - ")
+    #splitmyaddrpiuacinfo = myaddrpiuacinfo.split(" - ")
+    return render(request,'home.html')
+    
+#aggiungere le sessioni     
 def generate_algorand_keypair():
     private_key, address = account.generate_account()
     print("My address: {}".format(address))
@@ -157,14 +177,6 @@ def myAccInfo():
     myaddrpiuacinfo = strmy_address + " - " + straccount_info
     return myaddrpiuacinfo
 
-
-def home(request):
-    #addrpiupass = generate_algorand_keypair()
-    #myaddrpiuacinfo = myAccInfo()
-    #splitaddrpiupass = addrpiupass.split(" - ")
-    #splitmyaddrpiuacinfo = myaddrpiuacinfo.split(" - ")
-    return render(request,'home.html')
-    
 def account_profile(request):
     addrpiupass = generate_algorand_keypair()
     myaddrpiuacinfo = myAccInfo()
@@ -173,20 +185,7 @@ def account_profile(request):
     return render(request,'account_profile.html',{"address":splitaddrpiupass[0],"passphrase":splitaddrpiupass[1],"my_address":splitmyaddrpiuacinfo[0],"microAlgos":splitmyaddrpiuacinfo[1]})
     
 
-
-
-
-
-
-
-def error(request):
-    return HttpResponse('about')
-    return render(request,'error.html')
-
-def generic_error(request):
-    return HttpResponse('about')
-    return render(request,'generic_error.html')
-
+    
 
 
 

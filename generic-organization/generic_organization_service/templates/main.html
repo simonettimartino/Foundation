@@ -340,11 +340,11 @@
                 var formFooterStatus = true;
                 
                 function onDizmeAuth(res) {
-                    console.log(res);
+                    //console.log(res);
                     //alert('Result of login ' + res.transaction_status);
                     if (res.transaction_status === "SUCCESS") {
                         console.log("1")
-                        window.location="http://192.168.1.67/account_profile"
+                        window.location="http://192.168.1.67:8015/account_profile"
                     } else if (res.transaction_status === "FAILURE") {
                         console.log("2")
                     } else if (res.transaction_status === "ABORTED") {

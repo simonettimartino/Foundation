@@ -16,3 +16,5 @@ dizme-agent-pyclient==0.0.2
 infocert-pyclients==0.0.1
 ## algo
 py-algorand-sdk==1.4.1
+
+#config==3.3.6
