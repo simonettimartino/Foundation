@@ -23,14 +23,17 @@ from algosdk import mnemonic
 from algosdk.v2client import algod
 from algosdk.future.transaction import PaymentTxn
 from algosdk import account, encoding
+from algosdk.transaction import AssetConfigTxn
+from algosdk.transaction import write_to_file
 
 #from yourcompany.organization_handler import OrganizationHandler
 from generic_organization_service.handlers.organization_handler_manager import OrganizationHandlerManager
 from antidote import world
-
+import json
 
 logger = logging.getLogger(__name__)
-
+pzier_token_id = "15104608"
+astrazeneca_token_id = "15104588"
 
 @csrf_exempt
 @api_view(["GET"])
@@ -167,56 +170,130 @@ def generate_algorand_keypair(): #genera account algorand
     return addrpiupass
 
 
-def myAccInfo():
-    #192.168.1.67
+
+def account_profile(request):
+    #myaddrpiuacinfo = myAccInfo()
+    #splitmyaddrpiuacinfo = myaddrpiuacinfo.split(" - ")
+
+    #parte vera 
+    requestUserID_connessione = request.GET.get('requid', '')
+    #inizializzazione
+    walletSplittato = ""
     algod_address = "http://192.168.1.67:4001"
     algod_token = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
     algod_client = algod.AlgodClient(algod_token, algod_address)
 
-    passphrase = "sample oven shop vacuum ribbon multiply skull grain buddy eagle razor trash average fury alley pioneer garbage panda lecture road tattoo inflict core above joke"
+    #inizializzo connessione db
+    hostname = '192.168.1.67'
+    username = 'postgres'
+    password = 'organization_db_password'
+    database = 'generic_organization_db'
+    myConnection = psycopg2.connect( host=hostname, user=username, password=password, dbname=database )
 
-    private_key = mnemonic.to_private_key(passphrase)
-    my_address = mnemonic.to_public_key(passphrase)
-    print("My address: {}".format(my_address))
-    strmy_address = str(my_address)
-    account_info = algod_client.account_info(my_address)
+    cur = myConnection.cursor() #apro la connessione
+
+    cur.execute("SELECT user_connection_id FROM generic_organization_service_request WHERE request_uid='"+str(requestUserID_connessione)+"' limit 1;") 
+    user_connection_id = cur.fetchall()[0][0]
+    
+    cur.execute("SELECT data FROM generic_organization_service_userdata WHERE user_connection_id='"+str(user_connection_id)+"' limit 1;") 
+    datiUtenteDalDB = cur.fetchall()[0][0]
+    mailUtenteRicavata = datiUtenteDalDB['email']
+    
+    #generazione di un wallet algorand se non lo ha con noi
+    cur.execute("SELECT count(*) FROM account WHERE mail='"+mailUtenteRicavata+"';") 
+    verifica = cur.fetchall()[0][0]
+    print('verifica: ',verifica)
+    if verifica == 0:
+        #aggiungo un wallet se non esiste alcuna mail nel db
+        #inserisco la mail nel database
+        resultWalletGenerato = generate_algorand_keypair()
+        walletSplittato = resultWalletGenerato.split(" - ") #in 0 c'è il wallet generato, in 1 c'è la chiave privata
+        cur.execute("INSERT INTO account(mail,wallet_algo,private_key) VALUES('"+mailUtenteRicavata+"','"+walletSplittato[0]+"','"+ walletSplittato[1]+"');" )
+        myConnection.commit()
+    #else: #seleziono i dati già presenti nel db
+        #cur.execute("SELECT * FROM account WHERE mail='"+mailUtenteRicavata+"';")   
+        #datiUtente = cur.fetchall()
+        #print("dati utente ", datiUtente)
+
+    cur.execute("SELECT * FROM account WHERE mail='"+mailUtenteRicavata+"' limit 1;")  #limit 1, non si sa mai...
+    datiUtente_db = cur.fetchall()
+
+    myConnection.close()#chiudo la connessione con il db
+
+
+    #li recupero dal db perchè potrebbero essere già presenti al suo interno e non dovrei rigenerarli
+    for riga in datiUtente_db:
+        print("riga ",riga)
+        mailDal_Db = riga[0]
+        walletDal_db = riga[1]
+        private_key_dalDb = riga[2]
+       
+    #recupero dati associati al wallet
+  
+    datiWalletOttenuti = recuperoDatiAccountAlgo(algod_client,walletDal_db)
+    datiWalletOttenutiSplittati = datiWalletOttenuti.split(" - ")
+    print("my_address ",walletDal_db)
+    print("microAlgos ",datiWalletOttenutiSplittati[0])
+    #passo da microalgo ad algo
+    algoPosseduti = int(datiWalletOttenutiSplittati[0]) / 1000000
+    
+
+    algod_address = "http://192.168.1.67:4001"
+    algod_token = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    algod_client = algod.AlgodClient(algod_token, algod_address)
+
+    #CAMBIARE INDIRIZZO WALLET E VA CICLATA STA ROBA SOTTO
+    check_holdings(algod_client, pzier_token_id , walletDal_db)
+    return render(request,'account_profile.html',{"my_address":walletDal_db,"algo_posseduti":algoPosseduti})#non mostriamo la passphrase
+    
+
+    
+
+def recuperoDatiAccountAlgo(algod_client, indirizzoWallet):
+    #recupero quanti algorand ha
+    
+    account_info = algod_client.account_info(indirizzoWallet)
     print("Account balance: {} microAlgos".format(account_info.get('amount')))
-    straccount_info = str(account_info.get('amount'))
-    myaddrpiuacinfo = strmy_address + " - " + straccount_info
-    return myaddrpiuacinfo
-
-
-
-mailUtente = ""
-def setMail(mail):
-    mailUtente = mail
-
-def getMail():
-    return mailUtente
-
-def account_profile(request):
-    myaddrpiuacinfo = myAccInfo()
-    splitmyaddrpiuacinfo = myaddrpiuacinfo.split(" - ")
-
-    from yourcompany.organization_handler import OrganizationHandler
-    handler_manager = world.get(OrganizationHandlerManager)
-    handler_manager.add_organization_handler("yourcompany", OrganizationHandler())
+    microAlgo = str(account_info.get('amount'))
     
-    print(OrganizationHandler.handle_confirm_verify.__dict__)
-    
-    print("secondo")
+    datiWallet = microAlgo + " - "
 
-    print("pony: ",handler_manager)
+    return datiWallet
 
-    #print(indirizzoGeneratoAlgorand)
-    # print("pony: ",emailUtente)
-    #walletGenerato =
+#------------------------- visualizzazione token -------------------------
+#metodo per la gestione dei token
+def balance_formatter(amount, asset_id, algod_client):
+    """
+    Returns the formatted units for a given asset and amount. 
+    """
+    print("algoooo client ", algod_client)
+    asset_info = algod_client.asset_info(asset_id)
+    decimals = asset_info.get("decimals")
+    unit = asset_info.get("unitname")
+    formatted_amount = amount/10**decimals
+    return "{} {}".format(formatted_amount, unit)
 
-    return render(request,'account_profile.html',{"my_address":splitmyaddrpiuacinfo[0],"microAlgos":splitmyaddrpiuacinfo[1]})
-    
+def check_holdings(algod_client, asset_id, address):
+    """
+    Checks the asset balance for the specific address and asset id.
+    """
+    account_info = algod_client.account_info(address)
+    assets = account_info.get("assets")
+    print("assets: ", assets)
+    if assets:
+        #asset_holdings = account_info["assets"]
+        
+        #asset_holding = asset_holdings['asset_id']
+        asset_holding = assets[0]['asset-id']
+        print("asset_holding ",asset_holding)
+        if not asset_holding:
+            print("Account {} must opt-in to Asset ID {}.".format(address, asset_id))
+        else:
+            amount = assets[0]['amount']#asset_holding.get("amount")
+            #print("Account {} has {}.".format(address, balance_formatter(amount,asset_id,algod_client)))
+            print("NFT posseduti: {} con asset id: {} ".format(amount, asset_holding))
+           
+    else:
+        print("Account {} must opt-in to Asset ID {}.".format(address, asset_id))
 
-    
 
-
-
-    

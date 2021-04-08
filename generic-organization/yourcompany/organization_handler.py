@@ -12,7 +12,7 @@ import logging
 import pprint
 import json
 from generic_organization_service.views import generate_algorand_keypair
-from generic_organization_service.views import setMail
+
 
 
 import psycopg2
@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 
 
 class OrganizationHandler(OrganizationAbstractHandler):
-    mailInviata2 = ""
+
 
 
     def handle_confirm_verify(self, request_uid: str, connection_id: str, presentation_id, request_data: dict()):
@@ -40,9 +40,10 @@ class OrganizationHandler(OrganizationAbstractHandler):
             #dati = json.load(request_data)
             print("=======================",request_data['revealed_attributes']['email'])
             mailInviata = request_data['revealed_attributes']['email']
-            self.mailInviata2 = mailInviata
-            print("primo")
+            
+           
             #inserimento mail nella tabella
+            ''' 
             hostname = '192.168.1.67'
             username = 'postgres'
             password = 'organization_db_password'
@@ -68,7 +69,7 @@ class OrganizationHandler(OrganizationAbstractHandler):
                 datiUtente = cur.fetchall()
                 print("dati utente ", datiUtente)
 
-            myConnection.close()
+            myConnection.close()'''
 
            
     def handle_connection_notify(self, request_uid: str, connection_id: str, request_data: dict()):
