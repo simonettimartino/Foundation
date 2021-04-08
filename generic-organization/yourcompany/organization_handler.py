@@ -14,7 +14,7 @@ import json
 
 
 import psycopg2
-from config import config
+
 
 
 logger = logging.getLogger(__name__)
@@ -23,7 +23,10 @@ logger = logging.getLogger(__name__)
 
 
 class OrganizationHandler(OrganizationAbstractHandler):
-
+    hostname = '192.168.1.67'
+    username = 'postgres'
+    password = 'organization_db_password'
+    database = 'generic_organization_db'
 
     def handle_confirm_verify(self, request_uid: str, connection_id: str, presentation_id, request_data: dict()):
         logger.info('------------------------------ Connessione effettuata ------------------------------ ')
@@ -40,32 +43,9 @@ class OrganizationHandler(OrganizationAbstractHandler):
             #inserimento mail nella tabella
             
             sql = "INSERT INTO account(mail) VALUES(%s) RETURNING mail_gen;"
-            conn = None
-            vendor_id = None
-            try:
-                # read database configuration
-                params = config()
-                # connect to the PostgreSQL database
-                conn = psycopg2.connect(**params)
-                # create a new cursor
-                cur = conn.cursor()
-                # execute the INSERT statement
-                cur.execute(sql, (mail,))
-                # get the generated id back
-                mail_gen = cur.fetchone()[0]
-                # commit the changes to the database
-                conn.commit()
-                # close communication with the database
-                cur.close()
-            except (Exception, psycopg2.DatabaseError) as error:
-                print(error)
-            finally:
-                if conn is not None:
-                    conn.close()
-
-            return mail_gen
-
-
+           
+           
+     
 
            
     def handle_connection_notify(self, request_uid: str, connection_id: str, request_data: dict()):
