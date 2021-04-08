@@ -48,6 +48,6 @@ class NotificationService:
         verify_response.set_descriptions(description_list)
         verify_response.set_verify_result(verify_result.value)
         generic_response = dizme_agent_client.send_verify_response(verify_response)
-        print("verify response:", verify_response)
+        #print("verify response:", verify_response)
         print("generic response:", generic_response)
         return generic_response

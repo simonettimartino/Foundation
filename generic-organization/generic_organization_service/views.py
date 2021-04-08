@@ -8,13 +8,13 @@ from generic_organization_service.services.verify_service import VerifyService
 from generic_organization_service.services.connection_service import ConnectionService
 from generic_organization_service.services.issue_service import IssueService
 
-#from yourcompany.organization_handler import OrganizationHandler
 
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404
 
 from django.db import connection
 from django.http import HttpResponseRedirect
+#from generic_organization_service.handlers.organization_handler_manager import OrganizationHandlerManager
 
 import psycopg2
 
@@ -24,6 +24,9 @@ from algosdk.v2client import algod
 from algosdk.future.transaction import PaymentTxn
 from algosdk import account, encoding
 
+#from yourcompany.organization_handler import OrganizationHandler
+from generic_organization_service.handlers.organization_handler_manager import OrganizationHandlerManager
+from antidote import world
 
 
 logger = logging.getLogger(__name__)
@@ -153,7 +156,7 @@ def home(request):
     #splitmyaddrpiuacinfo = myaddrpiuacinfo.split(" - ")
     return render(request,'home.html')
     
-#aggiungere le sessioni     
+#aggiungere le sessioni 
 def generate_algorand_keypair(): #genera account algorand
     private_key, address = account.generate_account()
     print("My address: {}".format(address))
@@ -183,12 +186,30 @@ def myAccInfo():
     return myaddrpiuacinfo
 
 
+
+mailUtente = ""
+def setMail(mail):
+    mailUtente = mail
+
+def getMail():
+    return mailUtente
+
 def account_profile(request):
     myaddrpiuacinfo = myAccInfo()
     splitmyaddrpiuacinfo = myaddrpiuacinfo.split(" - ")
 
-    emailUtente = OrganizationHandler.getMailUtente()
-    print("pony: ",emailUtente)
+    from yourcompany.organization_handler import OrganizationHandler
+    handler_manager = world.get(OrganizationHandlerManager)
+    handler_manager.add_organization_handler("yourcompany", OrganizationHandler())
+    
+    print(OrganizationHandler.handle_confirm_verify.__dict__)
+    
+    print("secondo")
+
+    print("pony: ",handler_manager)
+
+    #print(indirizzoGeneratoAlgorand)
+    # print("pony: ",emailUtente)
     #walletGenerato =
 
     return render(request,'account_profile.html',{"my_address":splitmyaddrpiuacinfo[0],"microAlgos":splitmyaddrpiuacinfo[1]})
