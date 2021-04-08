@@ -11,6 +11,7 @@ from antidote import inject
 import logging
 import pprint
 import json
+from generic_organization_service.views import generate_algorand_keypair
 
 
 import psycopg2
@@ -23,10 +24,13 @@ logger = logging.getLogger(__name__)
 
 
 class OrganizationHandler(OrganizationAbstractHandler):
-    hostname = '192.168.1.67'
-    username = 'postgres'
-    password = 'organization_db_password'
-    database = 'generic_organization_db'
+    mailUtente = ""
+
+    def setMailUtente(mailUtenteArrivata):
+        mailUtente = mailUtenteArrivata
+
+    def getMailUtente():
+        return self.mailUtente
 
     def handle_confirm_verify(self, request_uid: str, connection_id: str, presentation_id, request_data: dict()):
         logger.info('------------------------------ Connessione effettuata ------------------------------ ')
@@ -39,13 +43,35 @@ class OrganizationHandler(OrganizationAbstractHandler):
             #inserisco la mail nel database
             #dati = json.load(request_data)
             print("=======================",request_data['revealed_attributes']['email'])
-            mail = request_data['revealed_attributes']['email']
+            mailInviata = request_data['revealed_attributes']['email']
+            setMailUtente(mailInviata)
             #inserimento mail nella tabella
+            hostname = '192.168.1.67'
+            username = 'postgres'
+            password = 'organization_db_password'
+            database = 'generic_organization_db'
+            myConnection = psycopg2.connect( host=hostname, user=username, password=password, dbname=database )
             
-            sql = "INSERT INTO account(mail) VALUES(%s) RETURNING mail_gen;"
-           
-           
-     
+            #query
+            cur = myConnection.cursor()
+            
+            cur.execute("SELECT count(*) FROM account WHERE mail='"+mailInviata+"';") 
+            verifica = cur.fetchall()[0][0]
+            print('verifica: ',verifica)
+            if verifica == 0:
+                #aggiungo un wallet se non esiste alcuna mail nel db
+                #inserisco la mail nel database
+                resultWalletGenerato = generate_algorand_keypair()
+                splitaddrpiupass = resultWalletGenerato.split(" - ") #in 0 c'è il wallet generato
+                #non gli diamo la passphrase
+                cur.execute("INSERT INTO account(mail,algo_wallet) VALUES('"+mailInviata+"','"+splitaddrpiupass[0]+"');" )
+                myConnection.commit()
+            else: #seleziono i dati già presenti nel db
+                cur.execute("SELECT * FROM account WHERE mail='"+mailInviata+"';")   
+                datiUtente = cur.fetchall()
+                print("dati utente ", datiUtente)
+
+            myConnection.close()
 
            
     def handle_connection_notify(self, request_uid: str, connection_id: str, request_data: dict()):

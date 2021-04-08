@@ -8,7 +8,7 @@ from generic_organization_service.services.verify_service import VerifyService
 from generic_organization_service.services.connection_service import ConnectionService
 from generic_organization_service.services.issue_service import IssueService
 
-
+#from yourcompany.organization_handler import OrganizationHandler
 
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404
@@ -16,11 +16,15 @@ from django.shortcuts import render, get_object_or_404
 from django.db import connection
 from django.http import HttpResponseRedirect
 
+import psycopg2
+
 
 from algosdk import mnemonic
 from algosdk.v2client import algod
 from algosdk.future.transaction import PaymentTxn
 from algosdk import account, encoding
+
+
 
 logger = logging.getLogger(__name__)
 
@@ -66,6 +70,7 @@ def start_verify_with_widget(request, proof_business_code, service_name, verify_
     request.data['restrictions'] = {}
     request.data['allow_multiple_read'] = True if (allow_multiple_read == "True" or allow_multiple_read == "true") \
         else False
+
     return verify_service.start_verify_with_widget(request.data)
 
 
@@ -149,7 +154,7 @@ def home(request):
     return render(request,'home.html')
     
 #aggiungere le sessioni     
-def generate_algorand_keypair():
+def generate_algorand_keypair(): #genera account algorand
     private_key, address = account.generate_account()
     print("My address: {}".format(address))
     straddress = str(address)
@@ -177,12 +182,16 @@ def myAccInfo():
     myaddrpiuacinfo = strmy_address + " - " + straccount_info
     return myaddrpiuacinfo
 
+
 def account_profile(request):
-    addrpiupass = generate_algorand_keypair()
     myaddrpiuacinfo = myAccInfo()
-    splitaddrpiupass = addrpiupass.split(" - ")
     splitmyaddrpiuacinfo = myaddrpiuacinfo.split(" - ")
-    return render(request,'account_profile.html',{"address":splitaddrpiupass[0],"passphrase":splitaddrpiupass[1],"my_address":splitmyaddrpiuacinfo[0],"microAlgos":splitmyaddrpiuacinfo[1]})
+
+    emailUtente = OrganizationHandler.getMailUtente()
+    print("pony: ",emailUtente)
+    #walletGenerato =
+
+    return render(request,'account_profile.html',{"my_address":splitmyaddrpiuacinfo[0],"microAlgos":splitmyaddrpiuacinfo[1]})
     
 
     
