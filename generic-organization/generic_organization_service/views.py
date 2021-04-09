@@ -371,7 +371,7 @@ def print_created_asset(algodclient, account, assetid):
     url = ""
     account_info = algodclient.account_info(account)
 
-    idx = 0;
+    idx = 0
     for my_account_info in account_info['created-assets']:
         scrutinized_asset = account_info['created-assets'][idx]
         #print("scrutinized_asset ", scrutinized_asset)
@@ -390,8 +390,7 @@ def print_created_asset(algodclient, account, assetid):
     return nomeVaccino + " - " + url
 
 
-
-def optin(algod_client, asset_id, sender_andress):
+#def optin(algod_client, asset_id, sender_andress):
 
 
 

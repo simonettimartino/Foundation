@@ -16,7 +16,6 @@ import os
 import socket
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
@@ -48,6 +47,7 @@ TEMPLATE_FOLDER_LIST = ["organization_template", "generic_organization", "generi
 BASE_CODE_FOLDER = "/code"
 
 # Application definition
+STATIC_ROOT="C:/Usersemanu/Desktop/progAlgo/generic-organization/generic_organization_service/static"
 
 INSTALLED_APPS = [
     'rest_framework',
