@@ -15,7 +15,34 @@
             <h2>L'indirizzo del tuo wallet è: <br> {{ my_address }}</h2>
             
             <h3>Algos: {{ algo_posseduti }}</h3>
-            <h3>NFT: {{ amount_token_nft }}</h3>
+            <div id="container_nft"></div>
+
+            <table id="tabella">
+                <tr>
+                    <td>
+                        Amount
+                    </td>
+                    <td>
+                        asset Id
+                    </td>
+                </tr>
+               
+                
+            </table>
+            <script>
+            {% block jquery%}
+                {% for token_singolo,asset_id_singolo in amount_token_nft,asset_idvettore %}
+                   $('#tabella').append("<tr><td>{{token_singolo}}</td><td>{{ asset_id_singolo }}</td></tr>")
+                {% endfor %}
+
+                {% for asset_id_singolo in asset_idvettore %}
+                   $('#tabella').append("<h3>Assset id: {{ asset_id_singolo }}</h3>")
+                {% endfor %}
+                
+            {% endblock %}
+                
+            </script>
+           
 
              <button onclick="requestVaccine()">Request Token Vaccine</button>
         <script>

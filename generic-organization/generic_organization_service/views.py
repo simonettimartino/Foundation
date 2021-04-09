@@ -155,13 +155,6 @@ def generic_error(request):
 
 
 
-def home(request):
-    #addrpiupass = generate_algorand_keypair()
-    #myaddrpiuacinfo = myAccInfo()
-    #splitaddrpiupass = addrpiupass.split(" - ")
-    #splitmyaddrpiuacinfo = myaddrpiuacinfo.split(" - ")
-    return render(request,'home.html')
-    
 #aggiungere le sessioni 
 def generate_algorand_keypair(): #genera account algorand
     private_key, address = account.generate_account()
@@ -248,12 +241,17 @@ def account_profile(request):
     #recupero quanti nft hanno i wallet
     j = 0
     amountToken = 0
+    token_posseduti = []
+    asset_id_vettore = []
     while j < len(vettore_id_token):
-        amountToken = check_holdings(algod_client, pzier_token_id[j] , walletDal_db)
+        amountToken = check_holdings(algod_client, vettore_id_token[j] , "FLSALBSJCHZCQ7P7V5KKDGYSPXIHWEIOWMSCARFJNMKMBBEMDE2KKOQ3AY")
+        amountToken.split(" - ")
+        token_posseduti.append(amountToken[0])
+        asset_id_vettore.append(amountToken[1])#passo l'asset id
         j += 1
 
 
-    return render(request,'account_profile.html',{"my_address":walletDal_db,"algo_posseduti":algoPosseduti, "amount_token_nft":amountToken})#non mostriamo la passphrase
+    return render(request,'account_profile.html',{"my_address":walletDal_db,"algo_posseduti":algoPosseduti, "amount_token_nft":token_posseduti,"asset_idvettore":asset_id_vettore})#non mostriamo la passphrase
     
 
     
@@ -284,6 +282,7 @@ def balance_formatter(amount, asset_id, algod_client):
 
 def check_holdings(algod_client, asset_id, address):
     amount = 0 
+    asset_id_usato = ""
 
     """
     Checks the asset balance for the specific address and asset id.
@@ -291,21 +290,51 @@ def check_holdings(algod_client, asset_id, address):
     account_info = algod_client.account_info(address)
     assets = account_info.get("assets")
     print("assets: ", assets)
+    asset_holding = ""
     if assets:
         #asset_holdings = account_info["assets"]
         
         #asset_holding = asset_holdings['asset_id']
-        asset_holding = assets[0]['asset-id']
-        print("asset_holding ",asset_holding)
-        if not asset_holding:
-            print("Account {} must opt-in to Asset ID {}.".format(address, asset_id))
-        else:
-            amount = assets[0]['amount']#asset_holding.get("amount")
-            #print("Account {} has {}.".format(address, balance_formatter(amount,asset_id,algod_client)))
-            print("NFT posseduti: {} con asset id: {} ".format(amount, asset_holding))
-           
+        indice = 0
+        controllo = False
+        print("lunghezza assets: ",len(assets))
+        while controllo == False:
+            if indice <= len(assets)-1:
+                print("assets[indice][asset-id] =====  ", assets[indice]['asset-id'])
+                print("asset_id =====  ", asset_id)
+                if str(assets[indice]['asset-id']) == asset_id:
+                    asset_holding = assets[indice]['asset-id']
+                    controllo = True  
+                    print("ema sono qui")
+
+                    if not asset_holding:
+                        print("Account {} must opt-in to Asset ID {}.".format(address, asset_id))
+                    else:
+                        amount = assets[indice]['amount']#asset_holding.get("amount")
+                        asset_id_usato = asset_id
+                        #print("Account {} has {}.".format(address, balance_formatter(amount,asset_id,algod_client)))
+                        print("NFT posseduti: {} con asset id: {} ".format(amount, asset_holding))
+                    
+                else:
+                    controllo = False
+                    indice = indice + 1
+            else:
+                break
+        
+       
+       
     else:
         print("Account {} must opt-in to Asset ID {}.".format(address, asset_id))
 
 
-    return amount
+    return str(amount) + " - " + asset_id_usato
+
+
+
+
+def home(request):
+    #test inizio
+   
+    #fine test
+    return render(request,'home.html')
+    
