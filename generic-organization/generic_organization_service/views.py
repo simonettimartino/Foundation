@@ -156,13 +156,42 @@ def generic_error(request):
 
 
 #aggiungere le sessioni 
-def generate_algorand_keypair(): #genera account algorand
+def generate_algorand_keypair(algod_client): #genera account algorand
     private_key, address = account.generate_account()
     print("My address: {}".format(address))
     straddress = str(address)
     print("My passphrase: {}".format(mnemonic.from_private_key(private_key)))
     strpassphrase = str(mnemonic.from_private_key(private_key))
     addrpiupass = straddress + " - " + strpassphrase
+
+    # ----------------------- INVIATO 0,1 ALGO all'account appena creato -----------------------
+
+    # passphrase dell'ACCOUNT BANCA
+    passphrase = "mercy swift guilt crunch board favorite tail grow explain family rookie math depth cram fly apple duty steel hurry foot liquid dream custom able axis"
+
+    private_key = mnemonic.to_private_key(passphrase)
+    my_address = mnemonic.to_public_key(passphrase)
+    #print("My address: {}".format(my_address))
+
+    account_info = algod_client.account_info(my_address)
+    #print("Account balance: {} microAlgos".format(account_info.get('amount')))
+
+    account_che_riceve = address #address è l'indirizzo del wallet appena creato
+    params = algod_client.suggested_params()
+    # comment out the next two (2) lines to use suggested fees
+    params.flat_fee = True
+    params.fee = 1000
+    receiver = account_che_riceve  # questo va gestito con una variabile
+    note = "Hello World".encode()
+    # vanno spediti 0,1 algo --> il minimo per poter fare l'opt-in
+    unsigned_txn = PaymentTxn(my_address, params, receiver, 100000, None, note)
+
+    #signe transaction
+    signed_txn = unsigned_txn.sign(mnemonic.to_private_key(passphrase))
+
+    #submit transaction
+    txid = algod_client.send_transaction(signed_txn)
+
     return addrpiupass
 
 
@@ -202,7 +231,7 @@ def account_profile(request):
     if verifica == 0:
         #aggiungo un wallet se non esiste alcuna mail nel db
         #inserisco la mail nel database
-        resultWalletGenerato = generate_algorand_keypair()
+        resultWalletGenerato = generate_algorand_keypair(algod_client)
         walletSplittato = resultWalletGenerato.split(" - ") #in 0 c'è il wallet generato, in 1 c'è la chiave privata
         cur.execute("INSERT INTO account(mail,wallet_algo,private_key) VALUES('"+mailUtenteRicavata+"','"+walletSplittato[0]+"','"+ walletSplittato[1]+"');" )
         myConnection.commit()
@@ -247,13 +276,13 @@ def account_profile(request):
     vettore_url = []
     while j < len(vettore_id_token):
         #preparo amount token e asset id
-        amountToken = check_holdings(algod_client, vettore_id_token[j] , "FLSALBSJCHZCQ7P7V5KKDGYSPXIHWEIOWMSCARFJNMKMBBEMDE2KKOQ3AY")
+        amountToken = check_holdings(algod_client, vettore_id_token[j] , walletDal_db)
         print("aaaaa ",amountToken)
         token_splittait = amountToken.split(" - ")
         token_posseduti.append(token_splittait[0])
         asset_id_vettore.append(token_splittait[1])#passo l'asset id
         #recupero nome vaccino e url
-        risultatoDati = print_created_asset(algod_client, "FLSALBSJCHZCQ7P7V5KKDGYSPXIHWEIOWMSCARFJNMKMBBEMDE2KKOQ3AY", vettore_id_token[j])
+        risultatoDati = print_created_asset(algod_client, walletDal_db, vettore_id_token[j])
         risultatoDatisplittati = risultatoDati.split(" - ")
         vettore_nomi.append(risultatoDatisplittati[0])
         vettore_url.append(str(risultatoDatisplittati[1]))
@@ -345,10 +374,10 @@ def print_created_asset(algodclient, account, assetid):
     idx = 0;
     for my_account_info in account_info['created-assets']:
         scrutinized_asset = account_info['created-assets'][idx]
-        print("scrutinized_asset ", scrutinized_asset)
+        #print("scrutinized_asset ", scrutinized_asset)
         idx = idx + 1      
-        print("scrutinized_asset[index] ", scrutinized_asset['index']) 
-        print("assetid ", assetid)
+        #print("scrutinized_asset[index] ", scrutinized_asset['index']) 
+        #print("assetid ", assetid)
         if (str(scrutinized_asset['index']) == assetid):
             print("Asset ID: {}".format(scrutinized_asset['index']))
             print(json.dumps(my_account_info['params'], indent=4))
@@ -359,6 +388,12 @@ def print_created_asset(algodclient, account, assetid):
     #print("================")
     #print(nomeVaccino , url)
     return nomeVaccino + " - " + url
+
+
+
+def optin(algod_client, asset_id, sender_andress):
+
+
 
 
 def home(request):
