@@ -31,13 +31,21 @@
             </table>
             <script>
             {% block jquery%}
-                {% for token_singolo,asset_id_singolo in amount_token_nft,asset_idvettore %}
-                   $('#tabella').append("<tr><td>{{token_singolo}}</td><td>{{ asset_id_singolo }}</td></tr>")
+                vettore_amount_nft = []
+                vettore_asset_id_nft = []
+                {% for token_singolo in amount_token_nft %}
+                   //$('#tabella').append("<tr><td>{{token_singolo}}</td><td>{{ asset_id_singolo }}</td></tr>")
+                   vettore_amount_nft.push({{token_singolo}})
                 {% endfor %}
 
                 {% for asset_id_singolo in asset_idvettore %}
-                   $('#tabella').append("<h3>Assset id: {{ asset_id_singolo }}</h3>")
+                   //$('#tabella').append("<h3>Assset id: {{ asset_id_singolo }}</h3>")
+                   vettore_asset_id_nft.push({{asset_id_singolo}})
                 {% endfor %}
+
+                for(var i = 0; i < vettore_amount_nft.length; i++){
+                    $('#tabella').append("<tr><td>"+vettore_amount_nft[i]+"</td><td>"+vettore_asset_id_nft[i]+"</td></tr>")
+                }
                 
             {% endblock %}
                 

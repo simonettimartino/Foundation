@@ -245,10 +245,12 @@ def account_profile(request):
     asset_id_vettore = []
     while j < len(vettore_id_token):
         amountToken = check_holdings(algod_client, vettore_id_token[j] , "FLSALBSJCHZCQ7P7V5KKDGYSPXIHWEIOWMSCARFJNMKMBBEMDE2KKOQ3AY")
-        amountToken.split(" - ")
-        token_posseduti.append(amountToken[0])
-        asset_id_vettore.append(amountToken[1])#passo l'asset id
+        print("aaaaa ",amountToken)
+        token_splittait = amountToken.split(" - ")
+        token_posseduti.append(token_splittait[0])
+        asset_id_vettore.append(token_splittait[1])#passo l'asset id
         j += 1
+
 
 
     return render(request,'account_profile.html',{"my_address":walletDal_db,"algo_posseduti":algoPosseduti, "amount_token_nft":token_posseduti,"asset_idvettore":asset_id_vettore})#non mostriamo la passphrase
@@ -334,7 +336,7 @@ def check_holdings(algod_client, asset_id, address):
 
 def home(request):
     #test inizio
-   
+
     #fine test
     return render(request,'home.html')
     
