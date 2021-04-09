@@ -17,15 +17,24 @@
             <h3>Algos: {{ algo_posseduti }}</h3>
             <div id="container_nft"></div>
 
-            <table id="tabella">
+            <table id="tabella" class="table table-striped table-dark">
+                <thead>
                 <tr>
-                    <td>
-                        Amount
-                    </td>
-                    <td>
-                        asset Id
-                    </td>
+                    <th scope="col">
+                        Amount token 
+                    </th>
+                    <th scope="col">
+                        Asset Id 
+                    </th>
+                    <th scope="col">
+                        Nome token 
+                    </th>
+                    <th scope="col">
+                        Url 
+                    </th>
                 </tr>
+                </thead>
+               
                
                 
             </table>
@@ -33,18 +42,30 @@
             {% block jquery%}
                 vettore_amount_nft = []
                 vettore_asset_id_nft = []
+                vettore_nome_nft = []
+                vettore_url_nft = []
                 {% for token_singolo in amount_token_nft %}
-                   //$('#tabella').append("<tr><td>{{token_singolo}}</td><td>{{ asset_id_singolo }}</td></tr>")
                    vettore_amount_nft.push({{token_singolo}})
                 {% endfor %}
 
                 {% for asset_id_singolo in asset_idvettore %}
-                   //$('#tabella').append("<h3>Assset id: {{ asset_id_singolo }}</h3>")
                    vettore_asset_id_nft.push({{asset_id_singolo}})
                 {% endfor %}
 
-                for(var i = 0; i < vettore_amount_nft.length; i++){
-                    $('#tabella').append("<tr><td>"+vettore_amount_nft[i]+"</td><td>"+vettore_asset_id_nft[i]+"</td></tr>")
+                {% for asset_nome_singolo in nome_token_vettore %}
+                    var res = "{{asset_nome_singolo}}"
+                    //res = res.replace("&", " and ");
+                    vettore_nome_nft.push(res)
+                {% endfor %}
+
+                {% for asset_url_singolo in url_token_vettore %}
+                    //cast a stringa
+                    res2 = "{{asset_url_singolo}}"
+                    vettore_url_nft.push(String(res2))
+                {% endfor %}
+
+                for(var i = 0; i < vettore_amount_nft.length; i++){ 
+                    $('#tabella').append("<tr><td>"+vettore_amount_nft[i]+"</td><td>"+vettore_asset_id_nft[i]+"</td><td>"+vettore_nome_nft[i]+"</td><td><a href="+vettore_url_nft[i]+">Visualizza Documento</a></td></tr>")
                 }
                 
             {% endblock %}

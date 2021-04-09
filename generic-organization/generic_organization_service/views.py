@@ -243,17 +243,24 @@ def account_profile(request):
     amountToken = 0
     token_posseduti = []
     asset_id_vettore = []
+    vettore_nomi = []
+    vettore_url = []
     while j < len(vettore_id_token):
+        #preparo amount token e asset id
         amountToken = check_holdings(algod_client, vettore_id_token[j] , "FLSALBSJCHZCQ7P7V5KKDGYSPXIHWEIOWMSCARFJNMKMBBEMDE2KKOQ3AY")
         print("aaaaa ",amountToken)
         token_splittait = amountToken.split(" - ")
         token_posseduti.append(token_splittait[0])
         asset_id_vettore.append(token_splittait[1])#passo l'asset id
+        #recupero nome vaccino e url
+        risultatoDati = print_created_asset(algod_client, "FLSALBSJCHZCQ7P7V5KKDGYSPXIHWEIOWMSCARFJNMKMBBEMDE2KKOQ3AY", vettore_id_token[j])
+        risultatoDatisplittati = risultatoDati.split(" - ")
+        vettore_nomi.append(risultatoDatisplittati[0])
+        vettore_url.append(str(risultatoDatisplittati[1]))
         j += 1
 
 
-
-    return render(request,'account_profile.html',{"my_address":walletDal_db,"algo_posseduti":algoPosseduti, "amount_token_nft":token_posseduti,"asset_idvettore":asset_id_vettore})#non mostriamo la passphrase
+    return render(request,'account_profile.html',{"my_address":walletDal_db,"algo_posseduti":algoPosseduti, "amount_token_nft":token_posseduti,"asset_idvettore":asset_id_vettore,"nome_token_vettore":vettore_nomi,"url_token_vettore":vettore_url})#non mostriamo la passphrase
     
 
     
@@ -291,7 +298,6 @@ def check_holdings(algod_client, asset_id, address):
     """
     account_info = algod_client.account_info(address)
     assets = account_info.get("assets")
-    print("assets: ", assets)
     asset_holding = ""
     if assets:
         #asset_holdings = account_info["assets"]
@@ -302,8 +308,6 @@ def check_holdings(algod_client, asset_id, address):
         print("lunghezza assets: ",len(assets))
         while controllo == False:
             if indice <= len(assets)-1:
-                print("assets[indice][asset-id] =====  ", assets[indice]['asset-id'])
-                print("asset_id =====  ", asset_id)
                 if str(assets[indice]['asset-id']) == asset_id:
                     asset_holding = assets[indice]['asset-id']
                     controllo = True  
@@ -332,11 +336,38 @@ def check_holdings(algod_client, asset_id, address):
     return str(amount) + " - " + asset_id_usato
 
 
+# ------------ recupero url e txid algorand ------------
+def print_created_asset(algodclient, account, assetid):    
+    nomeVaccino = ""
+    url = ""
+    account_info = algodclient.account_info(account)
+
+    idx = 0;
+    for my_account_info in account_info['created-assets']:
+        scrutinized_asset = account_info['created-assets'][idx]
+        print("scrutinized_asset ", scrutinized_asset)
+        idx = idx + 1      
+        print("scrutinized_asset[index] ", scrutinized_asset['index']) 
+        print("assetid ", assetid)
+        if (str(scrutinized_asset['index']) == assetid):
+            print("Asset ID: {}".format(scrutinized_asset['index']))
+            print(json.dumps(my_account_info['params'], indent=4))
+            nomeVaccino = my_account_info['params']['unit-name']
+            url = my_account_info['params']['url']
+            break
+    
+    #print("================")
+    #print(nomeVaccino , url)
+    return nomeVaccino + " - " + url
 
 
 def home(request):
     #test inizio
+    #algod_address = "http://192.168.1.67:4001"
+    #algod_token = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    #algod_client = algod.AlgodClient(algod_token, algod_address)
 
+    #print_created_asset(algod_client, "FLSALBSJCHZCQ7P7V5KKDGYSPXIHWEIOWMSCARFJNMKMBBEMDE2KKOQ3AY", pzier_token_id)
     #fine test
     return render(request,'home.html')
     
