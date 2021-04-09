@@ -34,6 +34,9 @@ import json
 logger = logging.getLogger(__name__)
 pzier_token_id = "15104608"
 astrazeneca_token_id = "15104588"
+moderna_token_id = "15104604"
+jej_token_id = "15104602" #johnson &johnson
+vettore_id_token = [pzier_token_id, astrazeneca_token_id, moderna_token_id, jej_token_id]
 
 @csrf_exempt
 @api_view(["GET"])
@@ -242,9 +245,15 @@ def account_profile(request):
     algod_token = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
     algod_client = algod.AlgodClient(algod_token, algod_address)
 
-    #CAMBIARE INDIRIZZO WALLET E VA CICLATA STA ROBA SOTTO
-    check_holdings(algod_client, pzier_token_id , walletDal_db)
-    return render(request,'account_profile.html',{"my_address":walletDal_db,"algo_posseduti":algoPosseduti})#non mostriamo la passphrase
+    #recupero quanti nft hanno i wallet
+    j = 0
+    amountToken = 0
+    while j < len(vettore_id_token):
+        amountToken = check_holdings(algod_client, pzier_token_id[j] , walletDal_db)
+        j += 1
+
+
+    return render(request,'account_profile.html',{"my_address":walletDal_db,"algo_posseduti":algoPosseduti, "amount_token_nft":amountToken})#non mostriamo la passphrase
     
 
     
@@ -274,6 +283,8 @@ def balance_formatter(amount, asset_id, algod_client):
     return "{} {}".format(formatted_amount, unit)
 
 def check_holdings(algod_client, asset_id, address):
+    amount = 0 
+
     """
     Checks the asset balance for the specific address and asset id.
     """
@@ -297,3 +308,4 @@ def check_holdings(algod_client, asset_id, address):
         print("Account {} must opt-in to Asset ID {}.".format(address, asset_id))
 
 
+    return amount
