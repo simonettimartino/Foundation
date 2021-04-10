@@ -27,6 +27,7 @@ urlpatterns = [
     url(r'^home/$', views.home, name='home'), #richiama main.html
     url(r'^error/$', views.error, name='error'),
     url(r'^richiesta_token/$', views.richiesta_token, name='richiesta_token'),
+    url(r'^search_account/$', views.search_account, name='search_account'), #richiama main.html
     url(r'^generic_error/$', views.generic_error, name='generic_error'),
     #url(r'^loginok/$', views.loginok, name='loginok'),
     url(r'^account_profile/$', views.account_profile, name='account_profile'),

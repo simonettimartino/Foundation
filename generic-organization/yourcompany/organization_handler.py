@@ -38,8 +38,9 @@ class OrganizationHandler(OrganizationAbstractHandler):
             oggService.handle_confirm_verify(request_uid, connection_id, presentation_id, request_data)
             #inserisco la mail nel database
             #dati = json.load(request_data)
-            print("=======================",request_data['revealed_attributes']['email'])
-            mailInviata = request_data['revealed_attributes']['email']
+            #print("request_data ",request_data)
+            #print("=======================",request_data['revealed_attributes']['personIdentifierNumber'])
+            #cf_Inviato = request_data['revealed_attributes']['personIdentifierNumber']
             
     
            

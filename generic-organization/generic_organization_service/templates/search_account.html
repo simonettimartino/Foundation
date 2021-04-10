@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<html>
+    <head>
+        <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+        <title>Your Company | Search Account</title>
+    </head>
+    
+    <body>
+        <div class="search_container">
+            <div class="input-group">
+            <div class="form-outline">
+                <input id="search-input" type="search" id="form1" class="form-control" />
+                <label class="form-label" for="form1">Search</label>
+            </div>
+            <button id="search-button" type="button" class="btn btn-primary">
+                <i class="fas fa-search"></i>
+            </button>
+            </div>
+        <div>
+        <script>
+            const searchButton = document.getElementById('search-button');
+            const searchInput = document.getElementById('search-input');
+            searchButton.addEventListener('click', () => {
+                var inputValue = searchInput.value;
+                window.location="http://192.168.1.67:8015/search_account/?search_wallet="+String(inputValue)
+                //alert(inputValue);
+            });
+        </script>
+        <p>{{ codice_fiscale }}</p>
+        <p>{{ wallet_utente }}</p>
+
+           
+
+
+    </body>    
+</html>
+
+
+<style>
+#search_container{
+    width: 70%;
+    text-align: center;
+    margin-top: 5%;
+    justify-content: center;
+}
+
+</style>

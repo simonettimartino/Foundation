@@ -389,30 +389,33 @@ def print_created_asset(algod_client, account, assetid):
    
     for my_account_info in account_info['assets']:
         wallet_creatore_dell_asset = account_info['assets'][idx]['creator'] #trovo il wallet del creatore
-        print("wallet_creatore_dell_asset ",wallet_creatore_dell_asset)
+        #print("wallet_creatore_dell_asset ",wallet_creatore_dell_asset)
        
-    if len(account_info['assets']) != 0: #se non è vuoto 
-        account_info_creatore = algod_client.account_info(wallet_creatore_dell_asset)
-        print("account_info_creatore ",account_info_creatore)
+    if len(account_info['assets']) == 0: #se non è vuoto 
+        wallet_creatore_dell_asset = "FLSALBSJCHZCQ7P7V5KKDGYSPXIHWEIOWMSCARFJNMKMBBEMDE2KKOQ3AY"
 
-        idx = 0
-        for scorri_account_info_creatore in account_info_creatore['created-assets']: #non va
-            scrutinized_asset = account_info_creatore['created-assets'][idx]
-            print("scrutinized_asset ",scrutinized_asset)
-            #print("scrutinized_asset ", scrutinized_asset)
-            idx = idx + 1      
-            #print("scrutinized_asset[index] ", scrutinized_asset['index']) 
-            #print("assetid ", assetid)
-            if (str(scrutinized_asset['index']) == assetid):
-                print("Asset ID: {}".format(scrutinized_asset['index']))
-                print(json.dumps(scorri_account_info_creatore['params'], indent=4))
-                nomeVaccino = scorri_account_info_creatore['params']['unit-name']
-                url = scorri_account_info_creatore['params']['url']
-                asset_id_recuperato = scrutinized_asset['index']
-                break
+    #uso l'account di un creatore che conosco sicuramente (è una cosa temporanea)
+    account_info_creatore = algod_client.account_info(wallet_creatore_dell_asset)
+    print("account_info_creatore ",account_info_creatore)
+
+    idx = 0
+    for scorri_account_info_creatore in account_info_creatore['created-assets']: #non va
+        scrutinized_asset = account_info_creatore['created-assets'][idx]
+        print("scrutinized_asset ",scrutinized_asset)
+        #print("scrutinized_asset ", scrutinized_asset)
+        idx = idx + 1      
+        #print("scrutinized_asset[index] ", scrutinized_asset['index']) 
+        #print("assetid ", assetid)
+        if (str(scrutinized_asset['index']) == assetid):
+            print("Asset ID: {}".format(scrutinized_asset['index']))
+            print(json.dumps(scorri_account_info_creatore['params'], indent=4))
+            nomeVaccino = scorri_account_info_creatore['params']['unit-name']
+            url = scorri_account_info_creatore['params']['url']
+            asset_id_recuperato = scrutinized_asset['index']
+            break
         
-        print("================")
-        print(nomeVaccino , url)
+    print("================")
+    print(nomeVaccino , url)
     return nomeVaccino + " - " + url + " - " + str(asset_id_recuperato)
 
 
@@ -470,15 +473,32 @@ def optin(request, algod_client, asset_id, account_richiedente):
 
 
 def home(request):
-    #test inizio
-    #algod_address = "http://192.168.1.67:4001"
-    #algod_token = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-    #algod_client = algod.AlgodClient(algod_token, algod_address)
-
-    #print_created_asset(algod_client, "FLSALBSJCHZCQ7P7V5KKDGYSPXIHWEIOWMSCARFJNMKMBBEMDE2KKOQ3AY", pzier_token_id)
-    #fine test
     return render(request,'home.html')
     
+
+def search_account(request):
+    searched_wallet = request.GET.get('search_wallet', '')
+    hostname = '192.168.1.67'
+    username = 'postgres'
+    password = 'organization_db_password'
+    database = 'generic_organization_db'
+    myConnection = psycopg2.connect( host=hostname, user=username, password=password, dbname=database )
+
+    #if(searched_wallet==""){
+        
+    #}
+
+    cur = myConnection.cursor() #apro la connessione
+    cur.execute("SELECT codice_fiscale FROM account WHERE wallet_algo='"+searched_wallet+"';")  
+    codice_fiscale_recuperato = cur.fetchall()
+    cur.execute("SELECT wallet_algo FROM account WHERE wallet_algo='"+searched_wallet+"';")  
+    wallet_recuperato = cur.fetchall()
+
+    myConnection.close()#chiudo la connessione con il db
+
+    return render(request,'search_account.html',{"codice_fiscale":codice_fiscale_recuperato,"wallet_utente":wallet_recuperato})
+    
+
 
 def richiesta_token(request):
     get_asset_it_fromURL = request.GET.get('asset_id', '')
@@ -487,6 +507,6 @@ def richiesta_token(request):
     if(tipoRichiesta == "True"): #in questo caso la richiesta richiede di fare un optin
         optin(request, algod_client, get_asset_it_fromURL, wallet_id)
     else: #in questo caso l'utente richiede di inviare al wallet Dizme un determinato token
-        print("pony")
+        print("pony") #bisogna attivare l'invio delle credenziali
 
     return render(request, 'richiesta_token.html')
