@@ -381,6 +381,7 @@ def print_created_asset(algod_client, account, assetid):
     account_info = algod_client.account_info(account)
     idx = 0
 
+<<<<<<< HEAD
    
     for my_account_info in account_info['assets']:
         wallet_creatore_dell_asset = account_info['assets'][idx]['creator'] #trovo il wallet del creatore
@@ -393,6 +394,11 @@ def print_created_asset(algod_client, account, assetid):
     for scorri_account_info_creatore in account_info_creatore['created-assets']: #non va
         scrutinized_asset = account_info_creatore['created-assets'][idx]
         print("scrutinized_asset ",scrutinized_asset)
+=======
+    idx = 0
+    for my_account_info in account_info['created-assets']:
+        scrutinized_asset = account_info['created-assets'][idx]
+>>>>>>> dee1c2f033519157154c9cd28798ff521f0ecf05
         #print("scrutinized_asset ", scrutinized_asset)
         idx = idx + 1      
         #print("scrutinized_asset[index] ", scrutinized_asset['index']) 
@@ -423,6 +429,7 @@ def optin(algod_client, asset_id, account_richiedente):
     cur.execute("SELECT private_key FROM account WHERE wallet_algo='"+account_richiedente+"' limit 1;")  #limit 1, non si sa mai...
     passphrase = cur.fetchall()[0][0]
 
+<<<<<<< HEAD
     myConnection.close()#chiudo la connessione con il db
 
     private_key_utente = mnemonic.to_private_key(passphrase)
@@ -459,6 +466,9 @@ def optin(algod_client, asset_id, account_richiedente):
         
        
 
+=======
+#def optin(algod_client, asset_id, sender_andress):
+>>>>>>> dee1c2f033519157154c9cd28798ff521f0ecf05
 
 
 
