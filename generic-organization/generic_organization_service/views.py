@@ -31,12 +31,23 @@ from generic_organization_service.handlers.organization_handler_manager import O
 from antidote import world
 import json
 
+from algosdk.future.transaction import AssetTransferTxn, AssetFreezeTxn
+
 logger = logging.getLogger(__name__)
+
+#inizializzazione variabili
 pzier_token_id = "15104608"
 astrazeneca_token_id = "15104588"
 moderna_token_id = "15104604"
 jej_token_id = "15104602" #johnson &johnson
 vettore_id_token = [pzier_token_id, astrazeneca_token_id, moderna_token_id, jej_token_id]
+
+
+algod_address = "http://192.168.1.67:4001"
+algod_token = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+algod_client = algod.AlgodClient(algod_token, algod_address)
+
+
 
 @csrf_exempt
 @api_view(["GET"])
@@ -204,9 +215,9 @@ def account_profile(request):
     requestUserID_connessione = request.GET.get('requid', '')
     #inizializzazione
     walletSplittato = ""
-    algod_address = "http://192.168.1.67:4001"
-    algod_token = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-    algod_client = algod.AlgodClient(algod_token, algod_address)
+    #algod_address = "http://192.168.1.67:4001"
+    #algod_token = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    #algod_client = algod.AlgodClient(algod_token, algod_address)
 
     #inizializzo connessione db
     hostname = '192.168.1.67'
@@ -263,10 +274,7 @@ def account_profile(request):
     algoPosseduti = int(datiWalletOttenutiSplittati[0]) / 1000000
     
 
-    algod_address = "http://192.168.1.67:4001"
-    algod_token = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-    algod_client = algod.AlgodClient(algod_token, algod_address)
-
+   
     #recupero quanti nft hanno i wallet
     j = 0
     amountToken = 0
@@ -280,12 +288,13 @@ def account_profile(request):
         print("aaaaa ",amountToken)
         token_splittait = amountToken.split(" - ")
         token_posseduti.append(token_splittait[0])
-        asset_id_vettore.append(token_splittait[1])#passo l'asset id
+        #asset_id_vettore.append(token_splittait[1])#passo l'asset id
         #recupero nome vaccino e url
         risultatoDati = print_created_asset(algod_client, walletDal_db, vettore_id_token[j])
         risultatoDatisplittati = risultatoDati.split(" - ")
         vettore_nomi.append(risultatoDatisplittati[0])
         vettore_url.append(str(risultatoDatisplittati[1]))
+        asset_id_vettore.append(str(risultatoDatisplittati[2]))
         j += 1
 
 
@@ -340,7 +349,6 @@ def check_holdings(algod_client, asset_id, address):
                 if str(assets[indice]['asset-id']) == asset_id:
                     asset_holding = assets[indice]['asset-id']
                     controllo = True  
-                    print("ema sono qui")
 
                     if not asset_holding:
                         print("Account {} must opt-in to Asset ID {}.".format(address, asset_id))
@@ -366,32 +374,91 @@ def check_holdings(algod_client, asset_id, address):
 
 
 # ------------ recupero url e txid algorand ------------
-def print_created_asset(algodclient, account, assetid):    
+def print_created_asset(algod_client, account, assetid):    
+ 
     nomeVaccino = ""
     url = ""
-    account_info = algodclient.account_info(account)
+    account_info = algod_client.account_info(account)
+    idx = 0
 
-    idx = 0;
-    for my_account_info in account_info['created-assets']:
-        scrutinized_asset = account_info['created-assets'][idx]
+   
+    for my_account_info in account_info['assets']:
+        wallet_creatore_dell_asset = account_info['assets'][idx]['creator'] #trovo il wallet del creatore
+        print("wallet_creatore_dell_asset ",wallet_creatore_dell_asset)
+       
+    account_info_creatore = algod_client.account_info(wallet_creatore_dell_asset)
+    print("account_info_creatore ",account_info_creatore)
+
+    idx = 0
+    for scorri_account_info_creatore in account_info_creatore['created-assets']: #non va
+        scrutinized_asset = account_info_creatore['created-assets'][idx]
+        print("scrutinized_asset ",scrutinized_asset)
         #print("scrutinized_asset ", scrutinized_asset)
         idx = idx + 1      
         #print("scrutinized_asset[index] ", scrutinized_asset['index']) 
         #print("assetid ", assetid)
         if (str(scrutinized_asset['index']) == assetid):
             print("Asset ID: {}".format(scrutinized_asset['index']))
-            print(json.dumps(my_account_info['params'], indent=4))
-            nomeVaccino = my_account_info['params']['unit-name']
-            url = my_account_info['params']['url']
+            print(json.dumps(scorri_account_info_creatore['params'], indent=4))
+            nomeVaccino = scorri_account_info_creatore['params']['unit-name']
+            url = scorri_account_info_creatore['params']['url']
+            asset_id_recuperato = scrutinized_asset['index']
             break
     
-    #print("================")
-    #print(nomeVaccino , url)
-    return nomeVaccino + " - " + url
+    print("================")
+    print(nomeVaccino , url)
+    return nomeVaccino + " - " + url + " - " + str(asset_id_recuperato)
 
 
+# --------------- optin -> richiesta di un token vaccino
+def optin(algod_client, asset_id, account_richiedente):
 
-def optin(algod_client, asset_id, sender_andress):
+    hostname = '192.168.1.67'
+    username = 'postgres'
+    password = 'organization_db_password'
+    database = 'generic_organization_db'
+    myConnection = psycopg2.connect( host=hostname, user=username, password=password, dbname=database )
+
+    cur = myConnection.cursor() #apro la connessione
+    cur.execute("SELECT private_key FROM account WHERE wallet_algo='"+account_richiedente+"' limit 1;")  #limit 1, non si sa mai...
+    passphrase = cur.fetchall()[0][0]
+
+    myConnection.close()#chiudo la connessione con il db
+
+    private_key_utente = mnemonic.to_private_key(passphrase)
+    print("private_key_utente ",private_key_utente)
+
+    params = algod_client.suggested_params()
+    # comment these two lines if you want to use suggested params
+    params.fee = 1000
+    params.flat_fee = True
+
+    account_info = algod_client.account_info(account_richiedente)
+    holding = None
+    idx = 0
+    for my_account_info in account_info['assets']:
+        scrutinized_asset = account_info['assets'][idx]
+        idx = idx + 1    
+        if (scrutinized_asset['asset-id'] == asset_id):
+            holding = True
+            break
+
+    if not holding:
+
+        # Use the AssetTransferTxn class to transfer assets and opt-in
+        txn = AssetTransferTxn(
+            sender=account_richiedente,
+            sp=params,
+            receiver=account_richiedente,
+            amt=0,
+            index=int(asset_id))
+       
+        stxn = txn.sign(private_key_utente)
+        txid = algod_client.send_transaction(stxn)
+
+        
+       
+
 
 
 
@@ -406,3 +473,10 @@ def home(request):
     #fine test
     return render(request,'home.html')
     
+
+def richiesta_token(request):
+    get_asset_it_fromURL = request.GET.get('asset_id', '')
+    wallet_id = request.GET.get('wallet_id', '')
+    optin(algod_client, get_asset_it_fromURL, wallet_id)
+
+    return render(request, 'richiesta_token.html')

@@ -41,36 +41,7 @@ class OrganizationHandler(OrganizationAbstractHandler):
             print("=======================",request_data['revealed_attributes']['email'])
             mailInviata = request_data['revealed_attributes']['email']
             
-           
-            #inserimento mail nella tabella
-            ''' 
-            hostname = '192.168.1.67'
-            username = 'postgres'
-            password = 'organization_db_password'
-            database = 'generic_organization_db'
-            myConnection = psycopg2.connect( host=hostname, user=username, password=password, dbname=database )
-            
-            #query
-            cur = myConnection.cursor()
-            
-            cur.execute("SELECT count(*) FROM account WHERE mail='"+mailInviata+"';") 
-            verifica = cur.fetchall()[0][0]
-            print('verifica: ',verifica)
-            if verifica == 0:
-                #aggiungo un wallet se non esiste alcuna mail nel db
-                #inserisco la mail nel database
-                resultWalletGenerato = generate_algorand_keypair()
-                splitaddrpiupass = resultWalletGenerato.split(" - ") #in 0 c'è il wallet generato
-                #non gli diamo la passphrase
-                cur.execute("INSERT INTO account(mail,algo_wallet) VALUES('"+mailInviata+"','"+splitaddrpiupass[0]+"');" )
-                myConnection.commit()
-            else: #seleziono i dati già presenti nel db
-                cur.execute("SELECT * FROM account WHERE mail='"+mailInviata+"';")   
-                datiUtente = cur.fetchall()
-                print("dati utente ", datiUtente)
-
-            myConnection.close()'''
-
+    
            
     def handle_connection_notify(self, request_uid: str, connection_id: str, request_data: dict()):
         pass
