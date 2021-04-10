@@ -10,11 +10,52 @@
     </head>
     
     <body>
+         <nav class="navbar navbar-expand-lg navbar-dark">
+            <div class="container-fluid barraDiv">
+                <a class="navbar-brand" href="#">Your Company</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item homeHover1">
+                    <a class="nav-link" aria-current="page" href="#" >Home</a>
+                        <!--<div id="hoverShow1">1) this is shown only on hover</div>-->
+                    </li>
+                 
+                    <li class="nav-item homeHover3">
+                    <a class="nav-link" href="#">About us</a>
+                    </li>
+                    <li class="nav-item homeHover3">
+                    <a class="nav-link" href="#">Search accounts</a>
+                    </li>
+                    <li class="nav-item homeHover4">
+                    <a class="nav-link" href="#">Help</a>
+                    </li>
+
+                </ul>
+                <span id="sitill"></span>
+                </div>
+            </div>
+        </nav>
        
-            <h1>Il tuo profilo</h1>
-            <h2>L'indirizzo del tuo wallet è: <br> {{ my_address }}</h2>
+    
+
+        <div id="intro_wallet">
+            <h2 id="wallet_id">Wallet Address:</h2>
+            <div class="row justify-content-center" >
+                    
+                <div id="address_wallet">
+                    <h3><a href="https://testnet.algoexplorer.io/address/{{ my_address }}">{{ my_address }}</a></h3>
+
+                </div>
+            </div>
+            <br>
+            <h3>Your Algos: <span id="algo_posseduti">{{ algo_posseduti }}</span><img src="https://www.blockchaincenter.net/wp-content/uploads/logos/algo.png" width="44px" alt="Logo algo crypto"/></h3>
+                
+        </div>
             
-            <h3>Algos: {{ algo_posseduti }}</h3>
+            
             <div id="container_nft"></div>
                 <div class="row justify-content-center">
                     <div class="col-auto">
@@ -22,16 +63,16 @@
                             <thead>
                                 <tr>
                                     <th scope="col">
-                                        Amount token 
+                                        Amount Token 
                                     </th>
                                     <th scope="col">
                                         Asset Id 
                                     </th>
                                     <th scope="col">
-                                        Nome token 
+                                        Token's Name 
                                     </th>
                                     <th scope="col">
-                                        Url 
+                                        Document's URL
                                     </th>
                                 </tr>
                             </thead>
@@ -66,7 +107,7 @@
                 {% endfor %}
 
                 for(var i = 0; i < vettore_amount_nft.length; i++){ 
-                    $('#tabella').append("<tr><td>"+vettore_amount_nft[i]+"</td><td>"+vettore_asset_id_nft[i]+"</td><td>"+vettore_nome_nft[i]+"</td><td><a href="+vettore_url_nft[i]+">Visualizza Documento</a></td></tr>")
+                    $('#tabella').append("<tr><td class='text-center'>"+vettore_amount_nft[i]+"</td><td class='text-center'>"+vettore_asset_id_nft[i]+"</td><td class='text-center'>"+vettore_nome_nft[i]+"</td><td class='text-center'><a href="+vettore_url_nft[i]+">View Document</a></td></tr>")
                 }
                 
             {% endblock %}
@@ -84,15 +125,23 @@
         </script>
 
 
-        <div class="row justify-content-center">
-            <label for="pfizer_id">Token id: </label>
-            <input type="text" id="pfizer_id" name="pfizer_id"><br><br>
+        <div class="row justify-content-center" class="container_small">
+            <div class="label_id">
+                <label class="row justify-content-center" for="pfizer_id" id="label_asset_id">Asset Id: </label>
+                <input type="text" id="pfizer_id" name="pfizer_id">
+            </div>
+
             <button type="submit" class="btn btn-primary btn-lg" id="btnPzier" onclick="effettuaRichiesta()">Request Vaccine's Token</button>
+        </div>
+        <br>
+        <div class="row justify-content-center" class="container_small">
+            
+            <button type="button" class="btn btn-success" id="btn_invia_token_to_wallet" onclick="effettuaRichiestaCertificazione()">Send Token to DizMe Wallet</button>
         </div>
         <br>
         <br>
         <div id="banda_asset">
-            <h1>Available Assets </h1>
+           <h1>Available Assets </h1>
         </div>
         <div class="info_vaccini">
             <div id="footer" class="row">
@@ -107,21 +156,36 @@
                             <div class="details">
                                 <h4>Pfizer</h4>
                                 <hr> 
-                                <div>Vaccino Covid-19 </div>
+                                <div>Covid-19 Vaccine </div>
                                 <br>
-                               
+                              
                                 <script>
-                                    function effettuaRichiesta(){
+                                    function effettuaRichiesta(){//richiama l'optin
                                         var valore_Id_inserito = $('input[name=pfizer_id]').val();
-                                        window.location="http://192.168.1.67:8015/richiesta_token/?asset_id="+String(valore_Id_inserito)+"&wallet_id="+String("{{ my_address }}")
+                                        var vett_asset_id = ["15104608","15104588","15104604","15104602"]
+                                        
+                                        if(!vett_asset_id.includes(valore_Id_inserito)){
+                                            alert("Error: Asset Id Not Exists. ")
+                                        }else{
+                                            window.location="http://192.168.1.67:8015/richiesta_token/?asset_id="+String(valore_Id_inserito)+"&wallet_id="+String("{{ my_address }}")+"&optin=True"
+                                        }
+                                    }
 
+
+                                    function effettuaRichiestaCertificazione(){ //invia l'nft al wallet Dizme
+                                        var valore_Id_inserito2 = $('input[name=pfizer_id]').val();
+                                        var vett_asset_id = ["15104608","15104588","15104604","15104602"]
+                                        
+                                        if(!vett_asset_id.includes(valore_Id_inserito2)){
+                                            alert("Error: Asset Id Not Exists. ")
+                                        }else{
+                                            window.location="http://192.168.1.67:8015/richiesta_token/?asset_id="+String(valore_Id_inserito2)+"&wallet_id="+String("{{ my_address }}")+"&optin=False"
+                                        }
                                     }
                                     
                                 </script>
                                 
-                                <br>
-                                <br>
-                                <a href="#" class="card-link">Visualizza informazioni &raquo;</a>
+                                <a href="#" class="card-link">View Details &raquo;</a>
                                 
                             </div>
                         </div>
@@ -138,11 +202,11 @@
                             <div class="details">
                                 <h4>Astra Zeneca</h4>
                                 <hr> 
-                                <div>Vaccino Covid-19 </div>
+                                <div>Covid-19 Vaccine</div>
+
+
                                 <br>
-                                <br>
-                                <br>
-                                <a href="#" class="card-link">Visualizza informazioni &raquo;</a>
+                                <a href="#" class="card-link">View Details &raquo;</a>
                             </div>
                         </div>
                     </div>
@@ -158,11 +222,10 @@
                             <div class="details">
                                 <h4>Moderna</h4>
                                 <hr> 
-                                <div>Vaccino Covid-19 </div>
+                                <div>Covid-19 Vaccine </div>
+
                                 <br>
-                                <br>
-                                <br>
-                                <a href="#" class="card-link">Visualizza informazioni &raquo;</a>
+                                <a href="#" class="card-link">View Details &raquo;</a>
                             </div>
                         </div>
                     </div>
@@ -178,10 +241,10 @@
                             <div class="details">
                                 <h4>Johnson & Johnson</h4>
                                 <hr> 
-                                <div>Vaccino Covid-19 </div>
+                                <div>Covid-19 Vaccine </div>
+
                                 <br>
-                                <br>
-                                <a href="#" class="card-link">Visualizza informazioni &raquo;</a>
+                                <a href="#" class="card-link">View Details &raquo;</a>
                             </div>
                         </div>
                     </div>
@@ -218,18 +281,38 @@ html, body, #big-container {
     margin: 0px auto;
 }
 
+
 .info_vaccini{
   margin-bottom: 0px;
   display: inline;
 }
 
+#intro_wallet{
+    text-align: center;
+    margin-bottom: 3%;
+    margin-top: 3%;
+    
+}
+#address_wallet{
+    overflow-y: auto;
+    width: 80%;
+}
+
 #banda_asset{
     width: 100%;
     height: 10%;
-    background-color: green;
+    background-color: darkblue;
     text-align: center;
+    color: white;
+    padding: 1.5%;
 }
 
+#algo_posseduti{
+    font-size: 30px;
+    color: green;
+    font-weight: bold;
+    margin-right: 0.5%;
+}
 
 #footer{
   text-align: center;
@@ -241,10 +324,24 @@ html, body, #big-container {
   margin-bottom: 0;
   
 }
+#label_asset_id{
+    padding: 0.5%;
+    font-size: 18px;
+}
+.label_id{
 
+    margin-right: 2%;
+}
 
+.container_small{
+    margin-top: 7%;
+    margin-bottom: 4%;
+}
 
 #pfizer_id{
+    margin-right: 4%;
+}
+#request_certify{
     margin-right: 4%;
 }
 
@@ -308,4 +405,15 @@ color: white;
   background-color: #27ae60;
   color: white;
 }
+.navbar {
+    background-color: #4678F3;
+    color: #f0f0f0!important;
+    font-family: 'Roboto', sans-serif;
+    font-size: large;
+  
+  }
+  a, li:hover{
+
+  border-radius: 10px;
+  }
 </style>

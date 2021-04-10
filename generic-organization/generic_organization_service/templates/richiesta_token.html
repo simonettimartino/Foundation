@@ -12,14 +12,13 @@
     <body>
         <div>
             <h1>Richiesta effettuata</h1>
-            <button type="submit" class="btn btn-primary btn-lg" id="btnPzier" onclick="tornaIndietro()">Back</button>
+           <button type="button" class="btn btn-primary" id="indietro" onclick="goBack()">Go Back</button>
 
-            <script type="text/javascript">
-                funtion tornaIndietro(){
+            <script>
+                function goBack() {
                     window.history.back();
                 }
             </script>
-            
        
 
 
@@ -28,3 +27,8 @@
 </html>
 
 
+<style>
+#indietro{
+    margin-left: 3%;
+}
+</style>

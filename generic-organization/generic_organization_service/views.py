@@ -228,15 +228,18 @@ def account_profile(request):
 
     cur = myConnection.cursor() #apro la connessione
 
-    cur.execute("SELECT user_connection_id FROM generic_organization_service_request WHERE request_uid='"+str(requestUserID_connessione)+"' limit 1;") 
+    cur.execute("SELECT id FROM generic_organization_service_request WHERE request_uid='"+str(requestUserID_connessione)+"' limit 1;") 
     user_connection_id = cur.fetchall()[0][0]
     
-    cur.execute("SELECT data FROM generic_organization_service_userdata WHERE user_connection_id='"+str(user_connection_id)+"' limit 1;") 
+    cur.execute("SELECT data FROM generic_organization_service_userdata WHERE request_id='"+str(user_connection_id)+"' limit 1;") 
     datiUtenteDalDB = cur.fetchall()[0][0]
-    mailUtenteRicavata = datiUtenteDalDB['email']
-    
+    print("datiUtenteDalDB ",datiUtenteDalDB)
+    try:
+        cflUtenteRicavata = datiUtenteDalDB['personIdentifierNumber']
+    except:
+        return render(request,'error.html')
     #generazione di un wallet algorand se non lo ha con noi
-    cur.execute("SELECT count(*) FROM account WHERE mail='"+mailUtenteRicavata+"';") 
+    cur.execute("SELECT count(*) FROM account WHERE codice_fiscale='"+cflUtenteRicavata+"';") 
     verifica = cur.fetchall()[0][0]
     print('verifica: ',verifica)
     if verifica == 0:
@@ -244,14 +247,14 @@ def account_profile(request):
         #inserisco la mail nel database
         resultWalletGenerato = generate_algorand_keypair(algod_client)
         walletSplittato = resultWalletGenerato.split(" - ") #in 0 c'è il wallet generato, in 1 c'è la chiave privata
-        cur.execute("INSERT INTO account(mail,wallet_algo,private_key) VALUES('"+mailUtenteRicavata+"','"+walletSplittato[0]+"','"+ walletSplittato[1]+"');" )
+        cur.execute("INSERT INTO account(codice_fiscale,wallet_algo,private_key) VALUES('"+cflUtenteRicavata+"','"+walletSplittato[0]+"','"+ walletSplittato[1]+"');" )
         myConnection.commit()
     #else: #seleziono i dati già presenti nel db
-        #cur.execute("SELECT * FROM account WHERE mail='"+mailUtenteRicavata+"';")   
+        #cur.execute("SELECT * FROM account WHERE mail='"+cflUtenteRicavata+"';")   
         #datiUtente = cur.fetchall()
         #print("dati utente ", datiUtente)
 
-    cur.execute("SELECT * FROM account WHERE mail='"+mailUtenteRicavata+"' limit 1;")  #limit 1, non si sa mai...
+    cur.execute("SELECT * FROM account WHERE codice_fiscale='"+cflUtenteRicavata+"' limit 1;")  #limit 1, non si sa mai...
     datiUtente_db = cur.fetchall()
 
     myConnection.close()#chiudo la connessione con il db
@@ -380,45 +383,42 @@ def print_created_asset(algod_client, account, assetid):
     url = ""
     account_info = algod_client.account_info(account)
     idx = 0
-
-<<<<<<< HEAD
+    wallet_creatore_dell_asset = ""
+    asset_id_recuperato = ""
+    print("account_info ",account_info)
    
     for my_account_info in account_info['assets']:
         wallet_creatore_dell_asset = account_info['assets'][idx]['creator'] #trovo il wallet del creatore
         print("wallet_creatore_dell_asset ",wallet_creatore_dell_asset)
        
-    account_info_creatore = algod_client.account_info(wallet_creatore_dell_asset)
-    print("account_info_creatore ",account_info_creatore)
+    if len(account_info['assets']) != 0: #se non è vuoto 
+        account_info_creatore = algod_client.account_info(wallet_creatore_dell_asset)
+        print("account_info_creatore ",account_info_creatore)
 
-    idx = 0
-    for scorri_account_info_creatore in account_info_creatore['created-assets']: #non va
-        scrutinized_asset = account_info_creatore['created-assets'][idx]
-        print("scrutinized_asset ",scrutinized_asset)
-=======
-    idx = 0
-    for my_account_info in account_info['created-assets']:
-        scrutinized_asset = account_info['created-assets'][idx]
->>>>>>> dee1c2f033519157154c9cd28798ff521f0ecf05
-        #print("scrutinized_asset ", scrutinized_asset)
-        idx = idx + 1      
-        #print("scrutinized_asset[index] ", scrutinized_asset['index']) 
-        #print("assetid ", assetid)
-        if (str(scrutinized_asset['index']) == assetid):
-            print("Asset ID: {}".format(scrutinized_asset['index']))
-            print(json.dumps(scorri_account_info_creatore['params'], indent=4))
-            nomeVaccino = scorri_account_info_creatore['params']['unit-name']
-            url = scorri_account_info_creatore['params']['url']
-            asset_id_recuperato = scrutinized_asset['index']
-            break
-    
-    print("================")
-    print(nomeVaccino , url)
+        idx = 0
+        for scorri_account_info_creatore in account_info_creatore['created-assets']: #non va
+            scrutinized_asset = account_info_creatore['created-assets'][idx]
+            print("scrutinized_asset ",scrutinized_asset)
+            #print("scrutinized_asset ", scrutinized_asset)
+            idx = idx + 1      
+            #print("scrutinized_asset[index] ", scrutinized_asset['index']) 
+            #print("assetid ", assetid)
+            if (str(scrutinized_asset['index']) == assetid):
+                print("Asset ID: {}".format(scrutinized_asset['index']))
+                print(json.dumps(scorri_account_info_creatore['params'], indent=4))
+                nomeVaccino = scorri_account_info_creatore['params']['unit-name']
+                url = scorri_account_info_creatore['params']['url']
+                asset_id_recuperato = scrutinized_asset['index']
+                break
+        
+        print("================")
+        print(nomeVaccino , url)
     return nomeVaccino + " - " + url + " - " + str(asset_id_recuperato)
 
 
 # --------------- optin -> richiesta di un token vaccino
-def optin(algod_client, asset_id, account_richiedente):
-
+def optin(request, algod_client, asset_id, account_richiedente):
+  
     hostname = '192.168.1.67'
     username = 'postgres'
     password = 'organization_db_password'
@@ -429,7 +429,6 @@ def optin(algod_client, asset_id, account_richiedente):
     cur.execute("SELECT private_key FROM account WHERE wallet_algo='"+account_richiedente+"' limit 1;")  #limit 1, non si sa mai...
     passphrase = cur.fetchall()[0][0]
 
-<<<<<<< HEAD
     myConnection.close()#chiudo la connessione con il db
 
     private_key_utente = mnemonic.to_private_key(passphrase)
@@ -466,9 +465,6 @@ def optin(algod_client, asset_id, account_richiedente):
         
        
 
-=======
-#def optin(algod_client, asset_id, sender_andress):
->>>>>>> dee1c2f033519157154c9cd28798ff521f0ecf05
 
 
 
@@ -487,6 +483,10 @@ def home(request):
 def richiesta_token(request):
     get_asset_it_fromURL = request.GET.get('asset_id', '')
     wallet_id = request.GET.get('wallet_id', '')
-    optin(algod_client, get_asset_it_fromURL, wallet_id)
+    tipoRichiesta = request.GET.get('optin', '')
+    if(tipoRichiesta == "True"): #in questo caso la richiesta richiede di fare un optin
+        optin(request, algod_client, get_asset_it_fromURL, wallet_id)
+    else: #in questo caso l'utente richiede di inviare al wallet Dizme un determinato token
+        print("pony")
 
     return render(request, 'richiesta_token.html')
