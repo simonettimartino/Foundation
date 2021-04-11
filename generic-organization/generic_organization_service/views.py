@@ -30,7 +30,7 @@ from algosdk.transaction import write_to_file
 from generic_organization_service.handlers.organization_handler_manager import OrganizationHandlerManager
 from antidote import world
 import json
-
+import http.client
 from algosdk.future.transaction import AssetTransferTxn, AssetFreezeTxn
 
 logger = logging.getLogger(__name__)
@@ -47,7 +47,7 @@ algod_address = "http://192.168.1.67:4001"
 algod_token = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
 algod_client = algod.AlgodClient(algod_token, algod_address)
 
-
+token_issue_credential = "JNNb5EMJpPhubxRJ8RtHDK:3:CL:201960:Token Vaccinazione"
 
 @csrf_exempt
 @api_view(["GET"])
@@ -175,7 +175,7 @@ def generate_algorand_keypair(algod_client): #genera account algorand
     strpassphrase = str(mnemonic.from_private_key(private_key))
     addrpiupass = straddress + " - " + strpassphrase
 
-    # ----------------------- INVIATO 0,1 ALGO all'account appena creato -----------------------
+    # ----------------------- INVIATO 0,2 ALGO all'account appena creato -----------------------
 
     # passphrase dell'ACCOUNT BANCA
     passphrase = "mercy swift guilt crunch board favorite tail grow explain family rookie math depth cram fly apple duty steel hurry foot liquid dream custom able axis"
@@ -194,8 +194,8 @@ def generate_algorand_keypair(algod_client): #genera account algorand
     params.fee = 1000
     receiver = account_che_riceve  # questo va gestito con una variabile
     note = "Hello World".encode()
-    # vanno spediti 0,1 algo --> il minimo per poter fare l'opt-in
-    unsigned_txn = PaymentTxn(my_address, params, receiver, 100000, None, note)
+    # vanno spediti 0,2 algo --> il minimo per poter fare l'opt-in
+    unsigned_txn = PaymentTxn(my_address, params, receiver, 201000, None, note)
 
     #signe transaction
     signed_txn = unsigned_txn.sign(mnemonic.to_private_key(passphrase))
@@ -504,9 +504,88 @@ def richiesta_token(request):
     get_asset_it_fromURL = request.GET.get('asset_id', '')
     wallet_id = request.GET.get('wallet_id', '')
     tipoRichiesta = request.GET.get('optin', '')
+    requid = request.GET.get('requid', '')
     if(tipoRichiesta == "True"): #in questo caso la richiesta richiede di fare un optin
         optin(request, algod_client, get_asset_it_fromURL, wallet_id)
+        conferma_risultato = "True"
     else: #in questo caso l'utente richiede di inviare al wallet Dizme un determinato token
-        print("pony") #bisogna attivare l'invio delle credenziali
+        amountToken2 = check_holdings(algod_client, get_asset_it_fromURL , wallet_id)
+        print("Possiedi questo quantitativo di token: ",amountToken2)
+        token_splittati_nft = amountToken2.split(" - ")
+        if(int(token_splittati_nft[0]) >= 1): #se ci sono due token, posso inviarli al waller
+            print("====================================================================================")
+            print(" ==================== PREPARO L'INVIO DELLE CREDENZIALI (TOKEN) ====================") 
+            hostname = '192.168.1.67'
+            username = 'postgres'
+            password = 'organization_db_password'
+            database = 'generic_organization_db'
+            myConnection = psycopg2.connect( host=hostname, user=username, password=password, dbname=database )
 
-    return render(request, 'richiesta_token.html')
+            cur = myConnection.cursor() #apro la connessione
+            cur.execute("SELECT user_connection_id FROM generic_organization_service_request WHERE request_uid='"+requid+"' limit 1;")  #limit 1, non si sa mai...
+            id_small = cur.fetchall()
+            id_small = str(id_small).replace(',', '')
+            id_small = str(id_small).replace(')', '')
+            id_small = str(id_small).replace('(', '')
+            id_small = str(id_small).replace('[', '')
+            id_small = str(id_small).replace(']', '')
+            cur.execute("SELECT connection_id FROM generic_organization_service_userconnection WHERE id='"+str(id_small)+"' limit 1;")  #limit 1, non si sa mai...
+            user_connection_id = cur.fetchall()
+
+            user_connection_id = str(user_connection_id).replace(',', '')
+            user_connection_id = str(user_connection_id).replace(')', '')
+            user_connection_id = str(user_connection_id).replace('(', '')
+            user_connection_id = str(user_connection_id).replace("'", "")
+
+
+            print("trovato ",user_connection_id)
+
+            myConnection.close()#chiudo la connessione con il db
+
+
+            conn = http.client.HTTPSConnection("demo-agent-cl.dizme.io")
+
+            #payload = "{\"request_uid\":\"\",\"connection_id\":\"f54e8952-0203-4147-a631-7c83894690a6\",\"credential_def_id\":\"JNNb5EMJpPhubxRJ8RtHDK:3:CL:201960:Token Vaccinazione\",\"credential_values\":[{\"name\":\"data\",\"mime_type\":\"string\",\"value\":\"prova\"},{\"name\":\"transactionID\",\"mime_type\":\"string\",\"value\":'{get_asset_it_fromURL}'}],\"comment\":\"Hai ricevuto il token da te richiesto.\"}"
+            #payload = "{\"request_uid\":\"\",\"connection_id\":\"f54e8952-0203-4147-a631-7c83894690a6\",\"credential_def_id\":\"JNNb5EMJpPhubxRJ8RtHDK:3:CL:201960:Token Vaccinazione\",\"credential_values\":[{\"name\":\"data\",\"mime_type\":\"string\",\"value\":\"prova\"},{\"name\":\"transactionID\",\"mime_type\":\"string\",\"value\":\"id_di_prova_01\"}],\"comment\":\"Hai ricevuto il token da te richiesto.\"}"
+            print(str(user_connection_id))
+            user_connection_id = str(user_connection_id).replace('[', '')
+            user_connection_id = str(user_connection_id).replace(']', '')
+            payload = {
+                        "request_uid": "",
+                        "connection_id": user_connection_id,
+                        "credential_def_id": token_issue_credential,
+                        "credential_values": [
+                            {
+                            "name": "data",
+                            "mime_type": "string",
+                            "value": "prova"
+                            },
+                            {
+                            "name": "transactionID",
+                            "mime_type": "string",
+                            "value": get_asset_it_fromURL
+                            }
+
+                        ],
+                        "comment": "Hai ricevuto il token da te richiesto."
+                        }
+
+            payload_json = json.dumps(payload)
+
+            headers = {
+                'accept': "application/json",
+                'x-auth-token': "JESjtNprnHMKrbtKkCakrrfodKTGZQrn",
+                'x-dizme-agent-id': "Your Company",
+                'content-type': "application/json"
+                }
+
+            conn.request("POST", "/api/v1/credential/offer", payload_json, headers)
+
+            res = conn.getresponse()
+            data = res.read()
+
+            print(data.decode("utf-8"))
+            conferma_risultato = "True"
+        else:
+            conferma_risultato = "False"
+    return render(request, 'richiesta_token.html',{"result_richiesta": conferma_risultato})

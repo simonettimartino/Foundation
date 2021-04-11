@@ -12,13 +12,18 @@
     <body>
         <div>
             <h1>Richiesta effettuata</h1>
-           <button type="button" class="btn btn-primary" id="indietro" onclick="goBack()">Go Back</button>
-
+           
+            <div id="risposta_risultato"></div>
             <script>
                 function goBack() {
                     window.history.back();
                 }
+                console.log(String("{{ result_richiesta }}"))
+                if(String("{{ result_richiesta }}") == "False"){
+                    $('#risposta_risultato').append('<span>Errore: Non possiedi abbastanza token!</span>')
+                }
             </script>
+            <button type="button" class="btn btn-primary" id="indietro" onclick="goBack()">Go Back</button>
        
 
 
@@ -31,4 +36,10 @@
 #indietro{
     margin-left: 3%;
 }
+#risposta_risultato{
+    color: red;
+    font-weight: bold;
+    font-size: 20px;
+    margin-left: 5%;
+}   
 </style>

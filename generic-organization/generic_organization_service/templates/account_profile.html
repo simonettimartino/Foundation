@@ -179,7 +179,12 @@
                                         if(!vett_asset_id.includes(valore_Id_inserito2)){
                                             alert("Error: Asset Id Not Exists. ")
                                         }else{
-                                            window.location="http://192.168.1.67:8015/richiesta_token/?asset_id="+String(valore_Id_inserito2)+"&wallet_id="+String("{{ my_address }}")+"&optin=False"
+                                            //recupero il request id 
+                                            const queryString = window.location.search;
+                                            //console.log(queryString);
+                                            const urlParams = new URLSearchParams(queryString);
+                                            const request_id_dall_url = urlParams.get('requid')
+                                            window.location="http://192.168.1.67:8015/richiesta_token/?asset_id="+String(valore_Id_inserito2)+"&wallet_id="+String("{{ my_address }}")+"&optin=False&requid="+String(request_id_dall_url)
                                         }
                                     }
                                     
