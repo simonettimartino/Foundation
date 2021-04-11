@@ -30,8 +30,51 @@
                 //alert(inputValue);
             });
         </script>
-        <p>{{ codice_fiscale }}</p>
-        <p>{{ wallet_utente }}</p>
+
+
+        <div id="container_nft"></div>
+                <div class="center-all-div">
+                    <div class="col-auto cls-table">
+                        <table id="tabella" class="table table-striped table-dark table-responsive">
+                            <thead>
+                                <tr>
+                                    <th scope="col">
+                                        Fiscal Code 
+                                    </th>
+                                    <th scope="col">
+                                        Wallet
+                                    </th>
+                                    
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {{codice_fiscale}}
+
+            <script>
+             {% block jquery%}
+                cf_vettore = []
+                wallet_vettore = []
+                
+                {% for codice_fiscale_scorro in codice_fiscale %}
+                   cf_vettore.push("{{ codice_fiscale_scorro }}")
+                {% endfor %}
+                {% for wallet_utente_scorro in wallet_utente %}
+                    wallet_vettore.push("{{ wallet_utente_scorro }}")
+                {% endfor %}
+                console.log(wallet_vettore)
+
+            
+
+                for(var i = 0; i < wallet_vettore.length; i++){ 
+                    $('#tabella').append("<tr><td class='text-center'>"+cf_vettore[i]+"</td><td class='text-center'>"+wallet_vettore[i]+"</td></tr>")
+                }
+                
+            {% endblock %}
+                
+            </script>
 
            
 
@@ -46,6 +89,22 @@
     text-align: center;
     margin-top: 5%;
     justify-content: center;
+}
+#tabella td{
+    text-align: center;
+    margin: 0px auto;
+}
+
+#tabella *{
+    text-align: center;
+}
+
+#tabella{
+    display: inline-table!important;
+}
+
+.cls-table{
+    width:80%;
 }
 
 </style>

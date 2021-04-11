@@ -483,18 +483,19 @@ def search_account(request):
     password = 'organization_db_password'
     database = 'generic_organization_db'
     myConnection = psycopg2.connect( host=hostname, user=username, password=password, dbname=database )
-
-    #if(searched_wallet==""){
-        
-    #}
-
     cur = myConnection.cursor() #apro la connessione
-    cur.execute("SELECT codice_fiscale FROM account WHERE wallet_algo='"+searched_wallet+"';")  
-    codice_fiscale_recuperato = cur.fetchall()
-    cur.execute("SELECT wallet_algo FROM account WHERE wallet_algo='"+searched_wallet+"';")  
-    wallet_recuperato = cur.fetchall()
+    if(searched_wallet==""):
+        cur.execute("SELECT codice_fiscale FROM account;")  
+        codice_fiscale_recuperato = cur.fetchall()
+        cur.execute("SELECT wallet_algo FROM account;")  
+        wallet_recuperato = cur.fetchall()
+    else:
+        cur.execute("SELECT codice_fiscale FROM account WHERE wallet_algo='"+searched_wallet+"';")  
+        codice_fiscale_recuperato = cur.fetchall()
+        cur.execute("SELECT wallet_algo FROM account WHERE wallet_algo='"+searched_wallet+"';")  
+        wallet_recuperato = cur.fetchall()
 
-    myConnection.close()#chiudo la connessione con il db
+        myConnection.close()#chiudo la connessione con il db
 
     return render(request,'search_account.html',{"codice_fiscale":codice_fiscale_recuperato,"wallet_utente":wallet_recuperato})
     
