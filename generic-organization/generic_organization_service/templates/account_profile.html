@@ -44,10 +44,8 @@
         <div id="intro_wallet">
             <h2 id="wallet_id">Wallet Address:</h2>
             <div class="center-all-div" >
-                    
                 <div id="address_wallet">
                     <h3><a href="https://testnet.algoexplorer.io/address/{{ my_address }}">{{ my_address }}</a></h3>
-
                 </div>
             </div>
             <br>
@@ -120,7 +118,6 @@
             function requestVaccine(){
                 //email
                 console.log("Vaccino richiesto")
-                
             }
         </script>
 
@@ -132,7 +129,7 @@
             </div>
         </div>
         <br>
-        <div class="center-all-div" class="container_small">
+        <div class="center-all-div btn-request" class="container_small">
             <button type="submit" class="btn btn-primary btn-lg" id="btnPzier" onclick="effettuaRichiesta()">Request Vaccine's Token</button>
             <button type="button" class="btn btn-success" id="btn_invia_token_to_wallet" onclick="effettuaRichiestaCertificazione()">Send Token to DizMe Wallet</button>
         </div>
@@ -294,6 +291,7 @@ html, body{
 
 .cls-table{
     width:50%;
+    max-width:80%;
 }
 
 
@@ -444,5 +442,33 @@ color: white;
     align-content: center;
     justify-content: center;
     display: flex;
+  }
+
+  @media screen and (max-width: 760px){
+      .cls-table{
+          width:auto;
+          max-width: 100%;
+      }
+
+      /* #btnPzier,#btn_invia_token_to_wallet{
+          margin-left:0;
+          margin-right:0;
+      }  */
+      #btnPzier{
+          margin-right:inherit;
+      }
+      #btn_invia_token_to_wallet{
+          margin-left:inherit;
+      }
+
+      .btn-request,.btn-request *{
+          display:block;
+          margin:0 auto;
+      }
+      #btnPzier{
+          margin-bottom:20px;
+      }
+
+      
   }
 </style>
