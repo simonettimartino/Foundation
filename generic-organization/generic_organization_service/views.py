@@ -37,6 +37,7 @@ import base64
 import qrcode
 from PIL import Image
 from io import BytesIO
+import hashlib
 #from PIL import Image
 
 logger = logging.getLogger(__name__)
@@ -253,6 +254,9 @@ def account_profile(request):
         #inserisco la mail nel database
         resultWalletGenerato = generate_algorand_keypair(algod_client)
         walletSplittato = resultWalletGenerato.split(" - ") #in 0 c'è il wallet generato, in 1 c'è la chiave privata
+
+        #codice_fiscale_criptato = hashlib.sha256(str.encode())
+
         cur.execute("INSERT INTO account(codice_fiscale,wallet_algo,private_key) VALUES('"+cflUtenteRicavata+"','"+walletSplittato[0]+"','"+ walletSplittato[1]+"');" )
         myConnection.commit()
     #else: #seleziono i dati già presenti nel db
@@ -568,7 +572,7 @@ def richiesta_token(request):
             qr.add_data(link_algo_explorer)
             qr.make(fit=True)
             img = qr.make_image(fill='black', back_color='white')
-            img.save('qrcode001.jpg')
+            img.save('qrcode001.png')
             #with open(img , "wb") as fh:
             #    fh.write(base64.decodebytes(img))
             #print(fh)
@@ -577,42 +581,19 @@ def richiesta_token(request):
             img_finale = Image.open(path_img)
     
             with open("./qrcode001.jpg", "rb") as image_file:
-                encoded_string = base64.b64encode(image_file.read())
-         
-                payload = {
-                            #"request_uid": "",
-                            "connection_id": user_connection_id,
-                            "credential_def_id": token_issue_credential,
-                            "credential_values": [
-                                {
-                                "name": "data",
-                                "mime_type": "text/plain",
-                                "value": str(today)
-                                },
-                                {
-                                "name": "transactionID",
-                                "mime_type": "text/plain",
-                                "value": link_algo_explorer
-                                },
-                                {
-                                "name": "qrCode",
-                                "mime_type": "image/jpg",
-                                "value": encoded_string #abbiamo testato utilizzando anche%:  
+                encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
+            #print("encoded: ",encoded_string)
+            payload = """{{\"connection_id\":\"{0}\",\"credential_def_id\":\"{1}\",\"credential_values\":[{{\"name\":\"data\",\"mime_type\":\"text/plain\",\"value\":\"{2}\"}},{{\"name\":\"transactionID\",\"mime_type\":\"text/plain\",\"value\":\"{3}\"}},{{\"name\":\"qrCode\",\"mime_type\":\"image/jpg\",\"value\":\"{4}\"}}],\"comment\":\"Hai ricevuto il token da te richiesto. Copia ed incolla il link ricevuto per verificare il tuo wallet.\"}}""".format(user_connection_id,token_issue_credential,str(today),link_algo_explorer,encoded_string)
+            #print(payload)
+            
 
-                                }
-
-                            ],
-                            "comment": "Hai ricevuto il token da te richiesto. Copia ed incolla il link ricevuto per verificare il tuo wallet."
-                            }
-
-                payload_json = json.dumps(payload)
             
             headers = {
-                'accept': "application/json",
-                'x-auth-token': "JESjtNprnHMKrbtKkCakrrfodKTGZQrn",
-                'x-dizme-agent-id': "Your Company",
-                'content-type': "application/json"
-                }
+                    'accept': "application/json",
+                    'x-auth-token': "JESjtNprnHMKrbtKkCakrrfodKTGZQrn",
+                    'x-dizme-agent-id': "Your Company",
+                    'content-type': "application/json"
+                    }
 
             conn.request("POST", "/api/v1/credential/offer", payload, headers)
 
