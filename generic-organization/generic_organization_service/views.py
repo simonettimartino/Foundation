@@ -32,6 +32,8 @@ from antidote import world
 import json
 import http.client
 from algosdk.future.transaction import AssetTransferTxn, AssetFreezeTxn
+from datetime import date
+
 
 logger = logging.getLogger(__name__)
 
@@ -506,6 +508,7 @@ def richiesta_token(request):
     wallet_id = request.GET.get('wallet_id', '')
     tipoRichiesta = request.GET.get('optin', '')
     requid = request.GET.get('requid', '')
+    link_algo_explorer = "https://testnet.algoexplorer.io/address/"+wallet_id
     if(tipoRichiesta == "True"): #in questo caso la richiesta richiede di fare un optin
         optin(request, algod_client, get_asset_it_fromURL, wallet_id)
         conferma_risultato = "True"
@@ -551,24 +554,26 @@ def richiesta_token(request):
             print(str(user_connection_id))
             user_connection_id = str(user_connection_id).replace('[', '')
             user_connection_id = str(user_connection_id).replace(']', '')
+            today = date.today()
+            #print("Today's date:", today)       
             payload = {
-                        "request_uid": "",
+                        #"request_uid": "",
                         "connection_id": user_connection_id,
                         "credential_def_id": token_issue_credential,
                         "credential_values": [
                             {
                             "name": "data",
-                            "mime_type": "string",
-                            "value": "prova"
+                            "mime_type": "text/plain",
+                            "value": str(today)
                             },
                             {
                             "name": "transactionID",
-                            "mime_type": "string",
-                            "value": get_asset_it_fromURL
+                            "mime_type": "text/plain",
+                            "value": link_algo_explorer
                             }
 
                         ],
-                        "comment": "Hai ricevuto il token da te richiesto."
+                        "comment": "Hai ricevuto il token da te richiesto. Copia ed incolla il link ricevuto per verificare il tuo wallet."
                         }
 
             payload_json = json.dumps(payload)
