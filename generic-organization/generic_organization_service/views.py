@@ -33,7 +33,11 @@ import json
 import http.client
 from algosdk.future.transaction import AssetTransferTxn, AssetFreezeTxn
 from datetime import date
-
+import base64
+import qrcode
+from PIL import Image
+from io import BytesIO
+#from PIL import Image
 
 logger = logging.getLogger(__name__)
 
@@ -49,7 +53,7 @@ algod_address = "http://192.168.1.67:4001"
 algod_token = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
 algod_client = algod.AlgodClient(algod_token, algod_address)
 
-token_issue_credential = "JNNb5EMJpPhubxRJ8RtHDK:3:CL:201960:Token Vaccinazione"
+token_issue_credential = "JNNb5EMJpPhubxRJ8RtHDK:3:CL:203273:Token Vaccinazione"
 
 @csrf_exempt
 @api_view(["GET"])
@@ -197,7 +201,7 @@ def generate_algorand_keypair(algod_client): #genera account algorand
     receiver = account_che_riceve  # questo va gestito con una variabile
     note = "Hello World".encode()
     # vanno spediti 0,2 algo --> il minimo per poter fare l'opt-in
-    unsigned_txn = PaymentTxn(my_address, params, receiver, 201000, None, note)
+    unsigned_txn = PaymentTxn(my_address, params, receiver, 301000, None, note)
 
     #signe transaction
     signed_txn = unsigned_txn.sign(mnemonic.to_private_key(passphrase))
@@ -555,29 +559,54 @@ def richiesta_token(request):
             user_connection_id = str(user_connection_id).replace('[', '')
             user_connection_id = str(user_connection_id).replace(']', '')
             today = date.today()
-            #print("Today's date:", today)       
-            payload = {
-                        #"request_uid": "",
-                        "connection_id": user_connection_id,
-                        "credential_def_id": token_issue_credential,
-                        "credential_values": [
-                            {
-                            "name": "data",
-                            "mime_type": "text/plain",
-                            "value": str(today)
-                            },
-                            {
-                            "name": "transactionID",
-                            "mime_type": "text/plain",
-                            "value": link_algo_explorer
+            #print("Today's date:", today)    
+            #img_qr_code = qrcode.make(link_algo_explorer)  
+            qr = qrcode.QRCode(
+                version=1,
+                box_size=10,
+                border=5)
+            qr.add_data(link_algo_explorer)
+            qr.make(fit=True)
+            img = qr.make_image(fill='black', back_color='white')
+            img.save('qrcode001.jpg')
+            #with open(img , "wb") as fh:
+            #    fh.write(base64.decodebytes(img))
+            #print(fh)
+
+            path_img = "./qrcode001.jpg"
+            img_finale = Image.open(path_img)
+    
+            with open("./qrcode001.jpg", "rb") as image_file:
+                encoded_string = base64.b64encode(image_file.read())
+         
+                payload = {
+                            #"request_uid": "",
+                            "connection_id": user_connection_id,
+                            "credential_def_id": token_issue_credential,
+                            "credential_values": [
+                                {
+                                "name": "data",
+                                "mime_type": "text/plain",
+                                "value": str(today)
+                                },
+                                {
+                                "name": "transactionID",
+                                "mime_type": "text/plain",
+                                "value": link_algo_explorer
+                                },
+                                {
+                                "name": "qrCode",
+                                "mime_type": "image/jpg",
+                                "value": encoded_string #abbiamo testato utilizzando anche%:  
+
+                                }
+
+                            ],
+                            "comment": "Hai ricevuto il token da te richiesto. Copia ed incolla il link ricevuto per verificare il tuo wallet."
                             }
 
-                        ],
-                        "comment": "Hai ricevuto il token da te richiesto. Copia ed incolla il link ricevuto per verificare il tuo wallet."
-                        }
-
-            payload_json = json.dumps(payload)
-
+                payload_json = json.dumps(payload)
+            
             headers = {
                 'accept': "application/json",
                 'x-auth-token': "JESjtNprnHMKrbtKkCakrrfodKTGZQrn",
@@ -585,7 +614,7 @@ def richiesta_token(request):
                 'content-type': "application/json"
                 }
 
-            conn.request("POST", "/api/v1/credential/offer", payload_json, headers)
+            conn.request("POST", "/api/v1/credential/offer", payload, headers)
 
             res = conn.getresponse()
             data = res.read()
@@ -595,3 +624,4 @@ def richiesta_token(request):
         else:
             conferma_risultato = "False"
     return render(request, 'richiesta_token.html',{"result_richiesta": conferma_risultato})
+
