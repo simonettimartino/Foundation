@@ -241,12 +241,15 @@ def account_profile(request):
     cur.execute("SELECT data FROM generic_organization_service_userdata WHERE request_id='"+str(user_connection_id)+"' limit 1;") 
     datiUtenteDalDB = cur.fetchall()[0][0]
     print("datiUtenteDalDB ",datiUtenteDalDB)
+    cflUtenteRicavata = "" #test
+    codice_fiscale_criptato = ""
     try:
         cflUtenteRicavata = datiUtenteDalDB['personIdentifierNumber']
+        codice_fiscale_criptato = hashlib.sha256(cflUtenteRicavata.encode()).hexdigest()
     except:
         return render(request,'error.html')
     #generazione di un wallet algorand se non lo ha con noi
-    cur.execute("SELECT count(*) FROM account WHERE codice_fiscale='"+cflUtenteRicavata+"';") 
+    cur.execute("SELECT count(*) FROM account WHERE codice_fiscale='"+codice_fiscale_criptato+"';") 
     verifica = cur.fetchall()[0][0]
     print('verifica: ',verifica)
     if verifica == 0:
@@ -255,16 +258,16 @@ def account_profile(request):
         resultWalletGenerato = generate_algorand_keypair(algod_client)
         walletSplittato = resultWalletGenerato.split(" - ") #in 0 c'è il wallet generato, in 1 c'è la chiave privata
 
-        #codice_fiscale_criptato = hashlib.sha256(str.encode())
+        
 
-        cur.execute("INSERT INTO account(codice_fiscale,wallet_algo,private_key) VALUES('"+cflUtenteRicavata+"','"+walletSplittato[0]+"','"+ walletSplittato[1]+"');" )
+        cur.execute("INSERT INTO account(codice_fiscale,wallet_algo,private_key) VALUES('"+codice_fiscale_criptato+"','"+walletSplittato[0]+"','"+ walletSplittato[1]+"');" )
         myConnection.commit()
     #else: #seleziono i dati già presenti nel db
         #cur.execute("SELECT * FROM account WHERE mail='"+cflUtenteRicavata+"';")   
         #datiUtente = cur.fetchall()
         #print("dati utente ", datiUtente)
 
-    cur.execute("SELECT * FROM account WHERE codice_fiscale='"+cflUtenteRicavata+"' limit 1;")  #limit 1, non si sa mai...
+    cur.execute("SELECT * FROM account WHERE codice_fiscale='"+codice_fiscale_criptato+"' limit 1;")  #limit 1, non si sa mai...
     datiUtente_db = cur.fetchall()
 
     myConnection.close()#chiudo la connessione con il db
@@ -483,6 +486,8 @@ def optin(request, algod_client, asset_id, account_richiedente):
 
 
 def home(request):
+    #codice_fiscale_criptato = hashlib.sha256("ahhh".encode()).hexdigest()
+    #print(codice_fiscale_criptato)
     return render(request,'home.html')
     
 
@@ -557,14 +562,10 @@ def richiesta_token(request):
 
             conn = http.client.HTTPSConnection("demo-agent-cl.dizme.io")
 
-            #payload = "{\"request_uid\":\"\",\"connection_id\":\"f54e8952-0203-4147-a631-7c83894690a6\",\"credential_def_id\":\"JNNb5EMJpPhubxRJ8RtHDK:3:CL:201960:Token Vaccinazione\",\"credential_values\":[{\"name\":\"data\",\"mime_type\":\"string\",\"value\":\"prova\"},{\"name\":\"transactionID\",\"mime_type\":\"string\",\"value\":'{get_asset_it_fromURL}'}],\"comment\":\"Hai ricevuto il token da te richiesto.\"}"
-            #payload = "{\"request_uid\":\"\",\"connection_id\":\"f54e8952-0203-4147-a631-7c83894690a6\",\"credential_def_id\":\"JNNb5EMJpPhubxRJ8RtHDK:3:CL:201960:Token Vaccinazione\",\"credential_values\":[{\"name\":\"data\",\"mime_type\":\"string\",\"value\":\"prova\"},{\"name\":\"transactionID\",\"mime_type\":\"string\",\"value\":\"id_di_prova_01\"}],\"comment\":\"Hai ricevuto il token da te richiesto.\"}"
             print(str(user_connection_id))
             user_connection_id = str(user_connection_id).replace('[', '')
             user_connection_id = str(user_connection_id).replace(']', '')
             today = date.today()
-            #print("Today's date:", today)    
-            #img_qr_code = qrcode.make(link_algo_explorer)  
             qr = qrcode.QRCode(
                 version=1,
                 box_size=10,
@@ -572,19 +573,19 @@ def richiesta_token(request):
             qr.add_data(link_algo_explorer)
             qr.make(fit=True)
             img = qr.make_image(fill='black', back_color='white')
-            img.save('qrcode001.png')
-            #with open(img , "wb") as fh:
-            #    fh.write(base64.decodebytes(img))
-            #print(fh)
+            salvataggio = wallet_id + '.jpg'
+            img.save(salvataggio)
 
-            path_img = "./qrcode001.jpg"
+
+
+            path_img = './'+salvataggio
             img_finale = Image.open(path_img)
+
     
-            with open("./qrcode001.jpg", "rb") as image_file:
+            with open(path_img, "rb") as image_file:
                 encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
-            #print("encoded: ",encoded_string)
+
             payload = """{{\"connection_id\":\"{0}\",\"credential_def_id\":\"{1}\",\"credential_values\":[{{\"name\":\"data\",\"mime_type\":\"text/plain\",\"value\":\"{2}\"}},{{\"name\":\"transactionID\",\"mime_type\":\"text/plain\",\"value\":\"{3}\"}},{{\"name\":\"qrCode\",\"mime_type\":\"image/jpg\",\"value\":\"{4}\"}}],\"comment\":\"Hai ricevuto il token da te richiesto. Copia ed incolla il link ricevuto per verificare il tuo wallet.\"}}""".format(user_connection_id,token_issue_credential,str(today),link_algo_explorer,encoded_string)
-            #print(payload)
             
 
             
